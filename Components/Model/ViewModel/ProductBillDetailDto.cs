@@ -15,5 +15,6 @@
 
         public Bill Bills { get; set; }
         public Product Product { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

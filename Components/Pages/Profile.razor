@@ -28,10 +28,11 @@
 
         <!-- Password Change Form -->
         <h4>Đổi mật khẩu</h4>
-        <MudTextField @bind-Value="oldPassword" Label="Mật khẩu cũ" Type="MudBlazor.InputType.Password" Required="true" />
-        <MudTextField @bind-Value="newPassword" Label="Mật khẩu mới" Type="MudBlazor.InputType.Password" Required="true" />
-        <MudTextField @bind-Value="confirmNewPassword" Label="Xác nhận mật khẩu mới" Type="MudBlazor.InputType.Password" Required="true" />
-        <MudButton OnClick="ChangePassword" Color="Color.Primary">Đổi mật khẩu</MudButton>
+       <MudTextField @bind-Value="oldPassword" Label="Mật khẩu cũ" Type="MudBlazor.InputType.Password" Required="true" Class="mud-textfield"/>
+<MudTextField @bind-Value="newPassword" Label="Mật khẩu mới" Type="MudBlazor.InputType.Password" Required="true" Class="mud-textfield"/>
+<MudTextField @bind-Value="confirmNewPassword" Label="Xác nhận mật khẩu mới" Type="MudBlazor.InputType.Password" Required="true" Class="mud-textfield"/>
+<MudButton OnClick="ChangePassword" Color="Color.Primary" Class="mud-button">Đổi mật khẩu</MudButton>
+
 
        
     </div>

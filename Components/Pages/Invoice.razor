@@ -8,86 +8,75 @@
 @using BanSach.Components.Model.ViewModel;
 
 @using System.Globalization
-
 <MudGrid Class="pt-2">
-    <MudItem xs="12" sm="12">
+    <MudItem xs="12" sm="12" md="6">
+        <!-- Thông tin người nhận hàng -->
+        <MudPaper Class="mud-padding-4" Elevation="4">
+            <div class="mud-typography-h6 mud-text-center" style="font-weight: bold;">Thông Tin Người Nhận Hàng</div>
+            <MudDivider />
+            <MudTextField Label="Tên người nhận" @bind-Value="receiverName" Variant="Variant.Outlined" Required="true" />
+            <MudTextField Label="Số điện thoại" @bind-Value="phoneNumber" Variant="Variant.Outlined" Required="true" />
+
+            <MudSelect T="string" Label="Chọn thành phố" @bind-Value="selectedCity" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Clearable>
+                @foreach (var city in cities)
+                {
+                    <MudSelectItem Value="@city.Name">@city.Name</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudSelect T="string" Label="Chọn quận/huyện" @bind-Value="selectedDistrict" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Clearable>
+                @if (!string.IsNullOrEmpty(selectedCity))
+                {
+                    var selectedCityObj = cities.FirstOrDefault(c => c.Name == selectedCity);
+                    if (selectedCityObj != null)
+                    {
+                        foreach (var district in selectedCityObj.Districts)
+                        {
+                            <MudSelectItem Value="@district">@district</MudSelectItem>
+                        }
+                    }
+                }
+            </MudSelect>
+
+            <MudSelect T="Pay" @bind-Value="pay" ToStringFunc="@converter" Label="Chọn phương thức thanh toán" Variant="Variant.Outlined" Clearable>
+                <MudSelectItem Value="@(new Pay() { Name="Tiền mặt"})" />
+                <MudSelectItem Value="@(new Pay() { Name="Thanh toán online"})" />
+            </MudSelect>
+
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="PlaceOrder">Đặt hàng</MudButton>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12" sm="12" md="6">
+        <!-- Thông tin hóa đơn và sản phẩm -->
         @if (listProductUserBill != null)
         {
-            <MudGrid>
-                <MudItem xs="12" sm="12" md="12">
-                    <div style="font-weight: bold; font-size: 1.5em;">Hóa Đơn</div>
-                    <div><strong>ID Hóa Đơn:</strong> @listProductUserBill.First().Bills.BillId</div>
-                    <div><strong>Tổng Tiền:</strong> @string.Format(new CultureInfo("vi-VN"), "{0:N0}", listProductUserBill.First().Bills.TotalPrice) vnđ</div>
-                    <div><strong>Số Lượng:</strong> @listProductUserBill.Sum(x=>x.Quantity)</div>
-                    <div><strong>Ngày Tạo:</strong> @(listProductUserBill.First().Bills.Created_at?.ToString("HH:mm dd/MM/yyyy") ?? "Không có thông tin")</div>
+            <MudPaper Class="mud-padding-4" Elevation="4">
+                <div class="mud-typography-h6 mud-text-center" style="font-weight: bold;">Thông Tin Hóa Đơn</div>
+                <MudDivider />
+                <MudText><strong>ID Hóa Đơn:</strong> @listProductUserBill.First().Bills.BillId</MudText>
+                <MudText><strong>Tổng Tiền:</strong> @string.Format(new CultureInfo("vi-VN"), "{0:N0}", listProductUserBill.Where(x => !x.IsDeleted).Sum(x => x.Quantity * x.Price)) vnđ</MudText>
 
-                    <br />
-                    <MudTable Items="listProductUserBill" Hover="true" Dense="true">
-                <HeaderContent>
-                    <MudTh>Tên sản phẩm</MudTh>
-                    <MudTh>Số lượng</MudTh>
-                    <MudTh>Giá sản phẩm</MudTh>
-                    <MudTh>Tác vụ</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd>@context.Product.ProductName</MudTd>
-                    <MudTd>@context.Quantity</MudTd>
-                    <MudTd>
-                                @Convert.ToDecimal(context.Price).ToString("#,##0") vnđ
-                    </MudTd>
-                    <MudTd>
-                        <MudButton Color="Color.Error" OnClick="@(() => DeleteProduct(context))">Xóa</MudButton>
-                    </MudTd>
-                </RowTemplate>
-            </MudTable>
-                    <!-- Địa chỉ giao hàng -->
-                    <MudText Typo="Typo.h6" Class="mud-width-full">Thông tin giao hàng</MudText>
+                <MudText><strong>Số Lượng:</strong> @listProductUserBill.Sum(x => x.Quantity)</MudText>
+                <MudText><strong>Ngày Tạo:</strong> @(listProductUserBill.First().Bills.Created_at?.ToString("HH:mm dd/MM/yyyy") ?? "Không có thông tin")</MudText>
 
-                    <!-- Tên người nhận -->
-                    <MudTextField Label="Tên người nhận" @bind-Value="receiverName" Variant="Variant.Outlined" Required="true" />
-
-                    <!-- Số điện thoại -->
-                    <MudTextField Label="Số điện thoại" @bind-Value="phoneNumber" Variant="Variant.Outlined" Required="true" />
-
-                    <!-- Thành phố -->
-                    <MudSelect T="string" Label="Chọn thành phố" @bind-Value="selectedCity" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Clearable>
-                        @foreach (var city in cities)
-                        {
-                            <MudSelectItem Value="@city.Name">@city.Name</MudSelectItem>
-                        }
-                    </MudSelect>
-
-                    <!-- Quận/Huyện -->
-                    <MudSelect T="string" Label="Chọn quận/huyện" @bind-Value="selectedDistrict" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Clearable>
-                        @if (!string.IsNullOrEmpty(selectedCity))
-                        {
-                            var selectedCityObj = cities.FirstOrDefault(c => c.Name == selectedCity);
-                            if (selectedCityObj != null)
-                            {
-                                foreach (var district in selectedCityObj.Districts)
-                                {
-                                    <MudSelectItem Value="@district">@district</MudSelectItem>
-                                }
-                            }
-                        }
-                    </MudSelect>
-
-                    <br />
-
-                    <!-- Phương thức thanh toán -->
-                    <MudSelect T="Pay" @bind-Value="pay" ToStringFunc="@converter" Label="Chọn phương thức thanh toán" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Clearable>
-                        <MudSelectItem Value="@(new Pay() { Name="Tiền mặt"})" />
-                        <MudSelectItem Value="@(new Pay() { Name="Thanh toán online"})" />
-                    </MudSelect>
-
-                    <br />
-
-                    <!-- Nút đặt hàng -->
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="PlaceOrder">
-                        Đặt hàng
-                    </MudButton>
-                </MudItem>
-            </MudGrid>
+                <MudTable Items="listProductUserBill" Hover="true" Dense="true">
+                    <HeaderContent>
+                        <MudTh>Tên sản phẩm</MudTh>
+                        <MudTh>Số lượng</MudTh>
+                        <MudTh>Giá sản phẩm</MudTh>
+                        <MudTh>Tác vụ</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>@context.Product.ProductName</MudTd>
+                        <MudTd>@context.Quantity</MudTd>
+                        <MudTd>@Convert.ToDecimal(context.Price).ToString("#,##0") vnđ</MudTd>
+                        <MudTd>
+                            <MudButton Color="Color.Error" OnClick="@(() => DeleteProduct(context))">Xóa</MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
         }
         else
         {
@@ -95,6 +84,8 @@
         }
     </MudItem>
 </MudGrid>
+
+
 
 @code {
     [Parameter] public int productBillId { get; set; }

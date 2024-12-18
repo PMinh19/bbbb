@@ -9,6 +9,7 @@
         public int Quantity { get; set; }
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
+
     }
 
     // Enum trạng thái đơn hàng
