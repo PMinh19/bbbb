@@ -26,30 +26,28 @@
             <MudIconButton Icon="@Icons.Material.Filled.Visibility" OnClick="TogglePasswordVisibility" />
         </p>
 
-        <!-- Hiển thị danh sách đơn đặt hàng -->
-        <MudButton OnClick="ShowOrderHistory" Color="Color.Primary">Xem lịch sử đơn đặt hàng</MudButton>
-
+        <!-- Hiển thị danh sách hóa đơn -->
         @if (orders != null && orders.Any())
         {
-            <h4>Lịch sử đơn đặt hàng</h4>
+            <h4>Lịch sử hóa đơn</h4>
             <MudTable Items="orders" Striped="true" Hover="true">
                 <HeaderContent>
-                    <MudTh>Đơn hàng</MudTh>
-                    <MudTh>Ngày tạo</MudTh>
+                    <MudTh>Hóa đơn ID</MudTh>
                     <MudTh>Tổng giá trị</MudTh>
                     <MudTh>Trạng thái</MudTh>
+                    <MudTh>Ngày tạo</MudTh>
                 </HeaderContent>
                 <RowTemplate>
-                    <MudTd DataLabel="Đơn hàng">@context.OrderCode</MudTd>
-                    <MudTd DataLabel="Ngày tạo">@context.Created_at?.ToString("dd/MM/yyyy")</MudTd>
+                    <MudTd DataLabel="Hóa đơn ID">@context.BillId</MudTd>
                     <MudTd DataLabel="Tổng giá trị">@context.TotalPrice.ToString("C")</MudTd>
                     <MudTd DataLabel="Trạng thái">@context.Status</MudTd>
+                    <MudTd DataLabel="Ngày tạo">@context.Created_at?.ToString("dd/MM/yyyy")</MudTd>
                 </RowTemplate>
             </MudTable>
         }
         else
         {
-            <p>Chưa có đơn hàng nào.</p>
+            <p>Chưa có hóa đơn nào.</p>
         }
     </div>
 }
@@ -62,7 +60,9 @@ else
     private int userId;
     private User userInfo;
     private bool showPassword = false;
-
+    private string oldPassword = "";
+    private string newPassword = "";
+    private string confirmNewPassword = "";
     private List<Bill> orders;
 
     protected override async Task OnInitializedAsync()
@@ -82,6 +82,7 @@ else
         }
 
         userInfo = await GetUserInfo(userId);
+        orders = await GetOrderHistory(userId);  // Lấy lịch sử hóa đơn của người dùng
     }
 
     private async Task<User> GetUserInfo(int userId)
@@ -101,17 +102,25 @@ else
         }
     }
 
+    private async Task<List<Bill>> GetOrderHistory(int userId)
+    {
+        try
+        {
+            var bills = await _dbContext.Bill
+                .Where(b => b.UserID == userId)
+                .ToListAsync();  // Lấy danh sách hóa đơn, không cần lấy thông tin chi tiết đơn hàng
+
+            return bills;
+        }
+        catch (Exception ex)
+        {
+            DialogService.ShowMessageBox("Lỗi", $"Không thể tải lịch sử hóa đơn: {ex.Message}");
+            return new List<Bill>();
+        }
+    }
+
     private void TogglePasswordVisibility()
     {
         showPassword = !showPassword;
-    }
-
-    private async Task ShowOrderHistory()
-    {
-        // Lấy danh sách các đơn đặt hàng của người dùng
-        orders = await _dbContext.Bill
-            .Where(b => b.UserID == userId)
-            .OrderByDescending(b => b.Created_at)
-            .ToListAsync();
     }
 }
