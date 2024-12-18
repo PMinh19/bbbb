@@ -8,7 +8,7 @@
     private string? statusParam;
     private string? orderCodeParam;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
 
@@ -20,8 +20,8 @@
         cancelParam = queryParameters.ContainsKey("cancel") ? bool.TryParse(queryParameters["cancel"], out bool cancelValue) && cancelValue : null;
         statusParam = queryParameters.ContainsKey("status") ? queryParameters["status"].ToString() : null;
         orderCodeParam = queryParameters.ContainsKey("orderCode") ? queryParameters["orderCode"].ToString() : null;
-        NavigationManager.NavigateTo($"/payment/cancel");
-
+        await Task.Yield();
+        NavigationManager.NavigateTo("/payment/cancel", forceLoad: true);
 
     }
 }
