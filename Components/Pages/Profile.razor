@@ -26,6 +26,13 @@
             <MudIconButton Icon="@Icons.Material.Filled.Visibility" OnClick="TogglePasswordVisibility" />
         </p>
 
+        <!-- Password Change Form -->
+        <h4>Đổi mật khẩu</h4>
+        <MudTextField @bind-Value="oldPassword" Label="Mật khẩu cũ" Type="MudBlazor.InputType.Password" Required="true" />
+        <MudTextField @bind-Value="newPassword" Label="Mật khẩu mới" Type="MudBlazor.InputType.Password" Required="true" />
+        <MudTextField @bind-Value="confirmNewPassword" Label="Xác nhận mật khẩu mới" Type="MudBlazor.InputType.Password" Required="true" />
+        <MudButton OnClick="ChangePassword" Color="Color.Primary">Đổi mật khẩu</MudButton>
+
         <!-- Hiển thị danh sách hóa đơn -->
         @if (orders != null && orders.Any())
         {
@@ -55,7 +62,6 @@ else
 {
     <p>Đang tải thông tin...</p>
 }
-
 @code {
     private int userId;
     private User userInfo;
@@ -122,5 +128,51 @@ else
     private void TogglePasswordVisibility()
     {
         showPassword = !showPassword;
+    }
+
+    private async Task ChangePassword()
+    {
+        if (string.IsNullOrWhiteSpace(newPassword) || newPassword != confirmNewPassword)
+        {
+            DialogService.ShowMessageBox("Lỗi", "Mật khẩu mới không hợp lệ hoặc xác nhận mật khẩu không khớp.");
+            return;
+        }
+
+        if (userInfo.Password != oldPassword)  // You should compare with the hashed password in a real-world scenario.
+        {
+            DialogService.ShowMessageBox("Lỗi", "Mật khẩu cũ không đúng.");
+            return;
+        }
+
+        // Hash the new password
+        var newPasswordHash = HashPassword(newPassword);
+
+        try
+        {
+            // Update password in the database
+            userInfo.Password = newPassword;
+            userInfo.PasswordHash = newPasswordHash.Hash;
+            userInfo.PasswordSalt = newPasswordHash.Salt;
+            userInfo.Updated = DateTime.Now;
+
+            _dbContext.Users.Update(userInfo);
+            await _dbContext.SaveChangesAsync();
+
+            DialogService.ShowMessageBox("Thành công", "Mật khẩu đã được cập nhật.");
+        }
+        catch (Exception ex)
+        {
+            DialogService.ShowMessageBox("Lỗi", $"Không thể đổi mật khẩu: {ex.Message}");
+        }
+    }
+
+    private (byte[] Hash, byte[] Salt) HashPassword(string password)
+    {
+        using (var hmac = new System.Security.Cryptography.HMACSHA512())
+        {
+            var salt = hmac.Key;
+            var hash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            return (hash, salt);
+        }
     }
 }
