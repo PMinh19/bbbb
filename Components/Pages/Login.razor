@@ -9,8 +9,6 @@
 @inject ICartService CartService
 <PageTitle>Login</PageTitle>
 
-
-
 <body>
     <div class="form-container">
         <div class="col col-1">
@@ -22,12 +20,9 @@
                 <img src="../images/img/rocket.png" class="form-image rocket" />
                 <img src="../images/img/cloud.png" class="form-image cloud" />
                 <img src="../images/img/stars.png" class="form-image stars" />
-
             </div>
-
         </div>
         <div class="col col-2">
-
             <div class="login-form">
                 <div class="form-title">
                     <h3>Đăng nhập</h3>
@@ -68,7 +63,6 @@
                         <i class="bx bxl-google"></i> Login with Google
                     </MudButton>
                 </div>
-
             </div>
         </div>
     </div>
@@ -285,17 +279,21 @@
         {
             errorMessage = string.Empty;
 
+            // Lưu token vào LocalStorage
             await LocalStorage.SetItemAsync("authToken", result.Data);
-            await AuthenticationStateProvider.GetAuthenticationStateAsync();
 
-            StateHasChanged();
-            if (NavigationManager.Uri.Contains("register"))
+            // Gọi CustomAuthStateProvider để cập nhật trạng thái xác thực
+            var customAuthStateProvider = (CustomAuthStateProvider)AuthenticationStateProvider;
+            await customAuthStateProvider.NotifyAuthenticationStateChangedAsync();
+
+            // Điều hướng về trang chính hoặc returnUrl
+            if (!string.IsNullOrEmpty(returnUrl))
             {
-                NavigationManager.NavigateTo("/");
+                NavigationManager.NavigateTo(returnUrl, true); // Reload trang
             }
             else
             {
-                NavigationManager.NavigateTo(returnUrl);
+                NavigationManager.NavigateTo("/", true); // Reload trang
             }
         }
         else

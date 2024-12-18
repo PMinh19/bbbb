@@ -16,6 +16,11 @@ public class CustomAuthStateProvider : AuthenticationStateProvider
         this.localStorageService = localStorageService;
         this.http = http;
     }
+    public async Task NotifyAuthenticationStateChangedAsync()
+    {
+        // Thông báo trạng thái xác thực thay đổi
+        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+    }
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
