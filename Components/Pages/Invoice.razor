@@ -1,0 +1,256 @@
+﻿@page "/invoice/{productBillId:int}"
+@using BanSach.Components.Model
+@using BanSach.Components.IService
+@inject ICartService CartService
+@inject NavigationManager navigationManager
+@inject IDialogService DialogService
+@inject IBillService BillService
+@using BanSach.Components.Model.ViewModel;
+
+@using System.Globalization
+
+<MudGrid Class="pt-2">
+    <MudItem xs="12" sm="12">
+        @if (listProductUserBill != null)
+        {
+            <MudGrid>
+                <MudItem xs="12" sm="12" md="12">
+                    <div style="font-weight: bold; font-size: 1.5em;">Hóa Đơn</div>
+                    <div><strong>ID Hóa Đơn:</strong> @listProductUserBill.First().Bills.BillId</div>
+                    <div><strong>Tổng Tiền:</strong> @string.Format(new CultureInfo("vi-VN"), "{0:N0}", listProductUserBill.First().Bills.TotalPrice) vnđ</div>
+                    <div><strong>Số Lượng:</strong> @listProductUserBill.Sum(x=>x.Quantity)</div>
+                    <div><strong>Ngày Tạo:</strong> @(listProductUserBill.First().Bills.Created_at?.ToString("HH:mm dd/MM/yyyy") ?? "Không có thông tin")</div>
+
+                    <br />
+                    <MudTable Items="listProductUserBill" Hover="true" Dense="true">
+                <HeaderContent>
+                    <MudTh>Tên sản phẩm</MudTh>
+                    <MudTh>Số lượng</MudTh>
+                    <MudTh>Giá sản phẩm</MudTh>
+                    <MudTh>Tác vụ</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Product.ProductName</MudTd>
+                    <MudTd>@context.Quantity</MudTd>
+                    <MudTd>
+                                @Convert.ToDecimal(context.Price).ToString("#,##0") vnđ
+                    </MudTd>
+                    <MudTd>
+                        <MudButton Color="Color.Error" OnClick="@(() => DeleteProduct(context))">Xóa</MudButton>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+                    <!-- Địa chỉ giao hàng -->
+                    <MudText Typo="Typo.h6" Class="mud-width-full">Thông tin giao hàng</MudText>
+
+                    <!-- Tên người nhận -->
+                    <MudTextField Label="Tên người nhận" @bind-Value="receiverName" Variant="Variant.Outlined" Required="true" />
+
+                    <!-- Số điện thoại -->
+                    <MudTextField Label="Số điện thoại" @bind-Value="phoneNumber" Variant="Variant.Outlined" Required="true" />
+
+                    <!-- Thành phố -->
+                    <MudSelect T="string" Label="Chọn thành phố" @bind-Value="selectedCity" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Clearable>
+                        @foreach (var city in cities)
+                        {
+                            <MudSelectItem Value="@city.Name">@city.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+
+                    <!-- Quận/Huyện -->
+                    <MudSelect T="string" Label="Chọn quận/huyện" @bind-Value="selectedDistrict" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Clearable>
+                        @if (!string.IsNullOrEmpty(selectedCity))
+                        {
+                            var selectedCityObj = cities.FirstOrDefault(c => c.Name == selectedCity);
+                            if (selectedCityObj != null)
+                            {
+                                foreach (var district in selectedCityObj.Districts)
+                                {
+                                    <MudSelectItem Value="@district">@district</MudSelectItem>
+                                }
+                            }
+                        }
+                    </MudSelect>
+
+                    <br />
+
+                    <!-- Phương thức thanh toán -->
+                    <MudSelect T="Pay" @bind-Value="pay" ToStringFunc="@converter" Label="Chọn phương thức thanh toán" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Clearable>
+                        <MudSelectItem Value="@(new Pay() { Name="Tiền mặt"})" />
+                        <MudSelectItem Value="@(new Pay() { Name="Thanh toán online"})" />
+                    </MudSelect>
+
+                    <br />
+
+                    <!-- Nút đặt hàng -->
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="PlaceOrder">
+                        Đặt hàng
+                    </MudButton>
+                </MudItem>
+            </MudGrid>
+        }
+        else
+        {
+            <MudText Color="Color.Error">Hóa đơn không tồn tại.</MudText>
+        }
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter] public int productBillId { get; set; }
+    private Product_bill productBill;
+    private Bill billUser;
+    private List<ProductBillDetailDto> listProductUserBill;
+    private ShippingInfoDTO shippingInfoDTO = new ShippingInfoDTO();
+
+    // Biến lưu thông tin giao hàng
+    private string receiverName; // Tên người nhận
+    private string phoneNumber;  // Số điện thoại
+    private string selectedCity; // Thành phố
+    private string selectedDistrict; // Quận/Huyện
+    private Pay pay = new Pay { Name = "Tiền mặt" };  // Mặc định là Tiền mặt
+
+    // Danh sách thành phố và quận/huyện
+    private List<City> cities = new List<City>
+    {
+        new City { Name = "Hà Nội", Districts = new List<string> { "Ba Đình", "Hoàn Kiếm", "Tây Hồ" } },
+        new City { Name = "Hồ Chí Minh", Districts = new List<string> { "Quận 1", "Quận 2", "Quận 3" } }
+    };
+
+    // Hàm converter cho MudSelect
+    Func<Pay, string> converter = p => p?.Name;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Ensure productBill is initialized
+            // productBill = await CartService.GetProductBillById(productBillId);
+            listProductUserBill = await BillService.GetProductsByBillId(productBillId);
+        }
+        catch (Exception ex)
+        {
+            DialogService.ShowMessageBox("Lỗi", $"Không thể tải hóa đơn: {ex.Message}");
+        }
+    }
+
+    private async Task PlaceOrder()
+    {
+        // Kiểm tra thông tin giao hàng
+        if (string.IsNullOrEmpty(receiverName) || string.IsNullOrEmpty(phoneNumber) ||
+            string.IsNullOrEmpty(selectedCity) || string.IsNullOrEmpty(selectedDistrict))
+        {
+            await DialogService.ShowMessageBox("Lỗi", "Vui lòng điền đầy đủ thông tin giao hàng.");
+            return;
+        }
+
+        // Kiểm tra phương thức thanh toán
+        if (pay == null || string.IsNullOrEmpty(pay.Name))
+        {
+            await DialogService.ShowMessageBox("Lỗi", "Vui lòng chọn phương thức thanh toán.");
+            return;
+        }
+
+        try
+        {
+            shippingInfoDTO.ReceiverName = receiverName;
+            shippingInfoDTO.PhoneNumber = phoneNumber;
+            shippingInfoDTO.SelectedCity = selectedCity;
+            shippingInfoDTO.SelectedDistrict = selectedDistrict;
+            shippingInfoDTO.UserID = listProductUserBill.First().Bills.UserID;
+
+
+            var (paymentResult, code, message) = await BillService.ConfirmOrder(listProductUserBill.First().Bills, pay.Name, shippingInfoDTO);
+            if(code == 400)
+            {
+                await DialogService.ShowMessageBox("Lỗi", $"{message}");
+                return;
+            }
+            else if(code == 202)
+            {
+                navigationManager.NavigateTo($"{message}");
+
+            }
+            else
+            {
+                await DialogService.ShowMessageBox("Thành công", $"{message}");
+                navigationManager.NavigateTo("/?message=" + Uri.EscapeDataString("Đơn hàng đã được đặt thành công."));
+            }
+          
+
+            // Gọi phương thức xử lý thanh toán
+            // var paymentResult = await CartService.ProcessPayment(productBill.ProductBillId, pay.Name);
+
+            // if (paymentResult.IsSuccess)
+            // {
+                // Lưu thông tin địa chỉ giao hàng
+                // var address = new Address
+                //     {
+                //         UserId = productBill.UserId,  Giả sử bạn đã có UserId từ ProductBill
+                //         Name = receiverName,
+                //         Phone = phoneNumber,
+                //         DetailAddress = $"{selectedDistrict}, {selectedCity}",
+                //         CreatedAt = DateTime.Now,
+                //         UpdatedAt = DateTime.Now
+                //     };
+
+                // Lưu địa chỉ vào cơ sở dữ liệu
+                // await CartService.SaveAddress(address);
+
+                // Cập nhật hóa đơn vào cơ sở dữ liệu
+                // var bill = new Bill
+                //     {
+                //         AddressId = address.AddressId,  Giả sử bạn đã có AddressId
+                //         DeliveryId = productBill.ProductBillId,  Đây là ID của hóa đơn
+                //         PayStatus = 1, 1 có thể là đã thanh toán
+                //         TotalPrice = (int)productBill.Price, Tổng tiền của hóa đơn
+                //         Note = "Đơn hàng đã được đặt",  Thêm ghi chú nếu cần
+                //         Created_at = DateTime.Now,
+                //         Updated_at = DateTime.Now,
+                //         Status = 1  Trạng thái của hóa đơn, ví dụ: 1 là đã xử lý
+                //     };
+
+                // Cập nhật Bill vào cơ sở dữ liệu
+                // await CartService.UpdateBillAsync(bill);
+
+                // Hiển thị thông báo và chuyển hướng
+                // await DialogService.ShowMessageBox("Thành Công", "Đơn hàng đã được đặt thành công.");
+            // }
+            // else
+            // {
+            //     await DialogService.ShowMessageBox("Lỗi", paymentResult.Message);
+            // }
+        }
+        catch (Exception ex)
+        {
+            await DialogService.ShowMessageBox("Lỗi", $"Đã xảy ra lỗi: {ex.Message}");
+        }
+    }
+
+    private void DeleteProduct(ProductBillDetailDto product)
+    {
+
+        listProductUserBill.Remove(product);
+    }
+
+    // Lớp để lưu thông tin thành phố và quận/huyện
+    private class City
+    {
+        public string Name { get; set; }
+        public List<string> Districts { get; set; }
+    }
+
+    // Lớp để lưu thông tin phương thức thanh toán
+    public class Pay
+    {
+        public string Name { get; set; }
+
+        public override bool Equals(object o)
+        {
+            var other = o as Pay;
+            return other?.Name == Name;
+        }
+
+        public override int GetHashCode() => Name.GetHashCode();
+    }
+}
