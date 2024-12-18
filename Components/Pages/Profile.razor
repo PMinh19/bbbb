@@ -33,29 +33,7 @@
         <MudTextField @bind-Value="confirmNewPassword" Label="Xác nhận mật khẩu mới" Type="MudBlazor.InputType.Password" Required="true" />
         <MudButton OnClick="ChangePassword" Color="Color.Primary">Đổi mật khẩu</MudButton>
 
-        <!-- Hiển thị danh sách hóa đơn -->
-        @if (orders != null && orders.Any())
-        {
-            <h4>Lịch sử hóa đơn</h4>
-            <MudTable Items="orders" Striped="true" Hover="true">
-                <HeaderContent>
-                    <MudTh>Hóa đơn ID</MudTh>
-                    <MudTh>Tổng giá trị</MudTh>
-                    <MudTh>Trạng thái</MudTh>
-                    <MudTh>Ngày tạo</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Hóa đơn ID">@context.BillId</MudTd>
-                    <MudTd DataLabel="Tổng giá trị">@context.TotalPrice.ToString("C")</MudTd>
-                    <MudTd DataLabel="Trạng thái">@context.Status</MudTd>
-                    <MudTd DataLabel="Ngày tạo">@context.Created_at?.ToString("dd/MM/yyyy")</MudTd>
-                </RowTemplate>
-            </MudTable>
-        }
-        else
-        {
-            <p>Chưa có hóa đơn nào.</p>
-        }
+       
     </div>
 }
 else
@@ -69,7 +47,6 @@ else
     private string oldPassword = "";
     private string newPassword = "";
     private string confirmNewPassword = "";
-    private List<Bill> orders;
 
     protected override async Task OnInitializedAsync()
     {
@@ -88,7 +65,6 @@ else
         }
 
         userInfo = await GetUserInfo(userId);
-        orders = await GetOrderHistory(userId);  // Lấy lịch sử hóa đơn của người dùng
     }
 
     private async Task<User> GetUserInfo(int userId)
@@ -105,23 +81,6 @@ else
         {
             DialogService.ShowMessageBox("Lỗi", $"Không thể tải thông tin người dùng: {ex.Message}");
             return null;
-        }
-    }
-
-    private async Task<List<Bill>> GetOrderHistory(int userId)
-    {
-        try
-        {
-            var bills = await _dbContext.Bill
-                .Where(b => b.UserID == userId)
-                .ToListAsync();  // Lấy danh sách hóa đơn, không cần lấy thông tin chi tiết đơn hàng
-
-            return bills;
-        }
-        catch (Exception ex)
-        {
-            DialogService.ShowMessageBox("Lỗi", $"Không thể tải lịch sử hóa đơn: {ex.Message}");
-            return new List<Bill>();
         }
     }
 

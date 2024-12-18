@@ -1,0 +1,74 @@
+﻿@page "/donhang"
+@using BanSach.Components.Model
+@inject CustomAuthStateProvider AuthenticationStateProvider
+@using BanSach.Components.Data
+@inject AppDbContext _dbContext
+@inject IDialogService DialogService
+@using System.Security.Claims
+@using MudBlazor
+
+
+        <!-- Hiển thị danh sách hóa đơn -->
+        @if (orders != null && orders.Any())
+        {
+            <h4>Lịch sử hóa đơn</h4>
+            <MudTable Items="orders" Striped="true" Hover="true">
+                <HeaderContent>
+                    <MudTh>Hóa đơn ID</MudTh>
+                    <MudTh>Tổng giá trị</MudTh>
+                    <MudTh>Trạng thái</MudTh>
+                    <MudTh>Ngày tạo</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Hóa đơn ID">@context.BillId</MudTd>
+                    <MudTd DataLabel="Tổng giá trị">@context.TotalPrice.ToString("C")</MudTd>
+                    <MudTd DataLabel="Trạng thái">@context.Status</MudTd>
+                    <MudTd DataLabel="Ngày tạo">@context.Created_at?.ToString("dd/MM/yyyy")</MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+        else
+        {
+            <p>Chưa có hóa đơn nào.</p>
+        }
+   
+@code {
+    private int userId;
+    private List<Bill> orders;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (int.TryParse(userIdClaim, out var parsedUserId))
+        {
+            userId = parsedUserId;
+        }
+        else
+        {
+            userId = 0;
+        }
+
+        orders = await GetOrderHistory(userId); // Lấy lịch sử hóa đơn của người dùng
+    }
+
+    private async Task<List<Bill>> GetOrderHistory(int userId)
+    {
+        try
+        {
+            var bills = await _dbContext.Bill
+                .Where(b => b.UserID == userId)
+                .ToListAsync(); // Lấy danh sách hóa đơn, không cần lấy thông tin chi tiết đơn hàng
+
+            return bills;
+        }
+        catch (Exception ex)
+        {
+            DialogService.ShowMessageBox("Lỗi", $"Không thể tải lịch sử hóa đơn: {ex.Message}");
+            return new List<Bill>();
+        }
+    }
+}

@@ -92,11 +92,10 @@
                 <Authorized>
                     <MudMenu Icon="@Icons.Material.Filled.AccountCircle"
                              AriaLabel="Open user menu">
-                        <MudMenuItem @onclick="Logout">Đăng xuất</MudMenuItem>
+                       
                         <MudMenuItem @onclick="NavigateToProfile">Hồ sơ</MudMenuItem>
-
-                        <MudMenuItem>Đơn hàng</MudMenuItem>
-                        
+                         <MudMenuItem @onclick="NavigateToDonhang">Đơn hàng</MudMenuItem>
+                        <MudMenuItem @onclick="Logout">Đăng xuất</MudMenuItem>
                     </MudMenu>
                 </Authorized>
                 <NotAuthorized>
@@ -142,7 +141,11 @@
 
         navigationManager.NavigateTo("/profile");
     }
+    private void NavigateToDonhang()
+    {
 
+        navigationManager.NavigateTo("/donhang");
+    }
     private async Task SetValueAsync(string? value)
     {
         searchQuery = value;
