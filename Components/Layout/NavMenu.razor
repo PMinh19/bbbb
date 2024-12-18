@@ -7,80 +7,73 @@
 
 <AuthorizeView>
     <Authorized>
-        @if (userRoleId == "2")
+        @if (userRoleId != "2")
         {
-            <div class="nav-scrollable">
-                <nav class="flex-column">
-                    <div class="nav-item px-3">
-                        <MudNavLink Href="/profile" Icon="@Icons.Material.Filled.Apps">Hồ sơ</MudNavLink>
-                    </div>
-                </nav>
-            </div>
-        }
-        else if (userRoleId == "3")
-        {
-            <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-                <nav class="flex-column">
-                    <div class="nav-item px-3">
-                        <MudNavLink Href="/ql/product" Icon="@Icons.Material.Filled.FormatListBulleted">Danh sách sách</MudNavLink>
+            if (userRoleId == "3")
+            {
+                <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+                    <nav class="flex-column">
+                        <div class="nav-item px-3">
+                            <MudNavLink Href="/ql/product" Icon="@Icons.Material.Filled.FormatListBulleted">Danh sách sách</MudNavLink>
 
-                    </div>
-                    <div class="nav-item px-3">
-                        <MudNavLink Href="/khuyenmai" Icon="@Icons.Material.Filled.Apps">Khuyến mãi</MudNavLink>
-                    </div>
+                        </div>
+                        <div class="nav-item px-3">
+                            <MudNavLink Href="/khuyenmai" Icon="@Icons.Material.Filled.Apps">Khuyến mãi</MudNavLink>
+                        </div>
 
-                    <div class="nav-item px-3">
-                        <MudNavLink Href="/Ql/Category" Icon="@Icons.Material.Filled.FormatListBulleted">Danh sách danh mục</MudNavLink>
-                    </div>
+                        <div class="nav-item px-3">
+                            <MudNavLink Href="/Ql/Category" Icon="@Icons.Material.Filled.FormatListBulleted">Danh sách danh mục</MudNavLink>
+                        </div>
 
-                    <div class="nav-item px-3">
-                        <MudNavLink Href="/noibat" Icon="@Icons.Material.Filled.Apps">Ảnh nổi bật</MudNavLink>
-                    </div>
-                    <div class="nav-item px-3">
+                        <div class="nav-item px-3">
+                            <MudNavLink Href="/noibat" Icon="@Icons.Material.Filled.Apps">Ảnh nổi bật</MudNavLink>
+                        </div>
+                        <div class="nav-item px-3">
 
-                        <MudNavLink Href="/doanhthu" Icon="@Icons.Material.Filled.Article">Thống kê doanh thu</MudNavLink>
-                    </div>
-                    <div class="nav-item px-3">
+                            <MudNavLink Href="/doanhthu" Icon="@Icons.Material.Filled.Article">Thống kê doanh thu</MudNavLink>
+                        </div>
+                        <div class="nav-item px-3">
 
-                        <MudNavLink Href="/van-don" Icon="@Icons.Material.Filled.Article">Quản lý đơn</MudNavLink>
-                    </div>
-                   
-                </nav>
-            </div>
-        }
-        else if (userRoleId == "1")
-        {
-            <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-                <nav class="flex-column">
-                    <div class="nav-item px-3">
-                        <MudNavLink Href="/ql/product" Icon="@Icons.Material.Filled.FormatListBulleted">Danh sách sách</MudNavLink>
+                            <MudNavLink Href="/van-don" Icon="@Icons.Material.Filled.Article">Quản lý đơn</MudNavLink>
+                        </div>
 
-                    </div>
-                    <div class="nav-item px-3">
-                        <MudNavLink Href="/khuyenmai" Icon="@Icons.Material.Filled.Apps">Khuyến mãi</MudNavLink>
-                    </div>
+                    </nav>
+                </div>
+            }
+            else if (userRoleId == "1")
+            {
+                <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+                    <nav class="flex-column">
+                        <div class="nav-item px-3">
+                            <MudNavLink Href="/ql/product" Icon="@Icons.Material.Filled.FormatListBulleted">Danh sách sách</MudNavLink>
 
-                    <div class="nav-item px-3">
-                        <MudNavLink Href="/Ql/Category" Icon="@Icons.Material.Filled.FormatListBulleted">Danh sách danh mục</MudNavLink>
-                    </div>
-                    <div class="nav-item px-3">
-                        <MudNavLink Href="/tt" Icon="@Icons.Material.Filled.AccountBox">Tài khoản nhân viên</MudNavLink>
+                        </div>
+                        <div class="nav-item px-3">
+                            <MudNavLink Href="/khuyenmai" Icon="@Icons.Material.Filled.Apps">Khuyến mãi</MudNavLink>
+                        </div>
 
-                    </div>
-                    <div class="nav-item px-3">
-                        <MudNavLink Href="/noibat" Icon="@Icons.Material.Filled.Apps">Ảnh nổi bật</MudNavLink>
-                    </div>
-                    <div class="nav-item px-3">
+                        <div class="nav-item px-3">
+                            <MudNavLink Href="/Ql/Category" Icon="@Icons.Material.Filled.FormatListBulleted">Danh sách danh mục</MudNavLink>
+                        </div>
+                        <div class="nav-item px-3">
+                            <MudNavLink Href="/tt" Icon="@Icons.Material.Filled.AccountBox">Tài khoản nhân viên</MudNavLink>
 
-                        <MudNavLink Href="/doanhthu" Icon="@Icons.Material.Filled.Article">Thống kê doanh thu</MudNavLink>
-                    </div>
-                    <div class="nav-item px-3">
+                        </div>
+                        <div class="nav-item px-3">
+                            <MudNavLink Href="/noibat" Icon="@Icons.Material.Filled.Apps">Ảnh nổi bật</MudNavLink>
+                        </div>
+                        <div class="nav-item px-3">
 
-                        <MudNavLink Href="/van-don" Icon="@Icons.Material.Filled.Article">Quản lý vận đơn</MudNavLink>
-                    </div>
+                            <MudNavLink Href="/doanhthu" Icon="@Icons.Material.Filled.Article">Thống kê doanh thu</MudNavLink>
+                        </div>
+                        <div class="nav-item px-3">
 
-                </nav>
-            </div>
+                            <MudNavLink Href="/van-don" Icon="@Icons.Material.Filled.Article">Quản lý vận đơn</MudNavLink>
+                        </div>
+
+                    </nav>
+                </div>
+            }
         }
     </Authorized>
    

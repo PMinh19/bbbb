@@ -2,6 +2,8 @@
 @inject ILocalStorageService LocalStorage
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
+@inject NavigationManager navigationManager
+
 @inject HttpClient Http
 @inject IHttpClientFactory ClientFactory
 <style>
@@ -90,7 +92,11 @@
                 <Authorized>
                     <MudMenu Icon="@Icons.Material.Filled.AccountCircle"
                              AriaLabel="Open user menu">
-                        <button @onclick="Logout">Đăng xuất</button>
+                        <MudMenuItem @onclick="Logout">Đăng xuất</MudMenuItem>
+                        <MudMenuItem @onclick="NavigateToProfile">Hồ sơ</MudMenuItem>
+
+                        <MudMenuItem>Đơn hàng</MudMenuItem>
+                        
                     </MudMenu>
                 </Authorized>
                 <NotAuthorized>
@@ -131,6 +137,11 @@
     private MudTheme? _theme = null;
     private string? _value;
     private string? _result;
+    private void NavigateToProfile()
+    {
+
+        navigationManager.NavigateTo("/profile");
+    }
 
     private async Task SetValueAsync(string? value)
     {
