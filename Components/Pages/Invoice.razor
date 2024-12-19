@@ -224,49 +224,6 @@
                 navigationManager.NavigateTo("/?message=" + Uri.EscapeDataString("Đơn hàng đã được đặt thành công."));
             }
           
-
-            // Gọi phương thức xử lý thanh toán
-            // var paymentResult = await CartService.ProcessPayment(productBill.ProductBillId, pay.Name);
-
-            // if (paymentResult.IsSuccess)
-            // {
-                // Lưu thông tin địa chỉ giao hàng
-                // var address = new Address
-                //     {
-                //         UserId = productBill.UserId,  Giả sử bạn đã có UserId từ ProductBill
-                //         Name = receiverName,
-                //         Phone = phoneNumber,
-                //         DetailAddress = $"{selectedDistrict}, {selectedCity}",
-                //         CreatedAt = DateTime.Now,
-                //         UpdatedAt = DateTime.Now
-                //     };
-
-                // Lưu địa chỉ vào cơ sở dữ liệu
-                // await CartService.SaveAddress(address);
-
-                // Cập nhật hóa đơn vào cơ sở dữ liệu
-                // var bill = new Bill
-                //     {
-                //         AddressId = address.AddressId,  Giả sử bạn đã có AddressId
-                //         DeliveryId = productBill.ProductBillId,  Đây là ID của hóa đơn
-                //         PayStatus = 1, 1 có thể là đã thanh toán
-                //         TotalPrice = (int)productBill.Price, Tổng tiền của hóa đơn
-                //         Note = "Đơn hàng đã được đặt",  Thêm ghi chú nếu cần
-                //         Created_at = DateTime.Now,
-                //         Updated_at = DateTime.Now,
-                //         Status = 1  Trạng thái của hóa đơn, ví dụ: 1 là đã xử lý
-                //     };
-
-                // Cập nhật Bill vào cơ sở dữ liệu
-                // await CartService.UpdateBillAsync(bill);
-
-                // Hiển thị thông báo và chuyển hướng
-                // await DialogService.ShowMessageBox("Thành Công", "Đơn hàng đã được đặt thành công.");
-            // }
-            // else
-            // {
-            //     await DialogService.ShowMessageBox("Lỗi", paymentResult.Message);
-            // }
         }
         catch (Exception ex)
         {

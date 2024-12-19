@@ -13,8 +13,9 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject CustomAuthStateProvider AuthStateProvider
-
-
+@using BanSach.Components.Data
+@inject AppDbContext AppDbContext
+@inject IDialogService DialogService
         @if (userRoleId == "2")
         {
             <h3>Bạn chưa được cấp quyền để xem trang này.</h3>
@@ -56,7 +57,38 @@
         <h2 style="font-family:Arial;">Quản lý ảnh nổi bật</h2>
         <MudSpacer></MudSpacer>
         <MudButton OnClick="@((e) => CreateAsync(img))" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Thêm</MudButton>
+       
     </div>
+    <MudPaper Class="pa-4">
+        <MudStack Spacing="2">
+            <MudButton OnClick="OnExpandCollapseClick">@(_expanded ? "Ẩn Lịch Sử" : "Xem Lịch Sử")</MudButton>
+            <MudDivider />
+            <MudCollapse Expanded="_expanded">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>User Email</th>
+                            <th>Details</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in logs)
+                        {
+                            <tr>
+                                <td>@log.Action</td>
+                                <td>@log.UserEmail</td>
+                                <td>@log.Details</td>
+                                <td>@log.Timestamp</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </MudCollapse>
+        </MudStack>
+    </MudPaper>
+
     <MudGrid Style="margin: 20px;">
         <MudItem xs="11" sm="11" md="11">
             @if (imgs != null)
@@ -80,8 +112,9 @@
             }
         </MudItem>
     </MudGrid>
+    
         }
- 
+    
 
 
 @code {
@@ -94,13 +127,26 @@
         imageDirectory = Path.Combine(Environment.WebRootPath, "images");
         try
         {
+            // Lấy danh sách ảnh
             imgs = await ItemManagement.GetAllImgsDescending();
 
+            // Lấy dữ liệu log từ cơ sở dữ liệu
+            logs = await AppDbContext.Logs.ToListAsync();
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine("Lỗi trong OnInitializedAsync: " + ex.Message);
         }
+    }
+    
+
+
+    private List<LogAnhNoiBat> logs = new List<LogAnhNoiBat>();
+    bool _expanded = true;
+
+    private void OnExpandCollapseClick()
+    {
+        _expanded = !_expanded;
     }
 
     private async Task CreateAsync(Img img)
@@ -112,8 +158,25 @@
         if (!result!.Canceled)
         {
             await ItemManagement.CreateImg(img);
+
+            // Log the action
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var userEmail = authState.User.Identity.Name;
+
+            var log = new LogAnhNoiBat
+                {
+                    Action = "Create Image",
+                    UserEmail = userEmail,
+                    Details = $"Image created: {img.ImgId}",
+                    Timestamp = DateTime.Now
+                };
+
+            AppDbContext.Logs.Add(log);
+            await AppDbContext.SaveChangesAsync(); // Save log to the database
         }
     }
+
+
     private async Task DeleteAsync(Img img)
     {
         var parameters = new DialogParameters<DeleteConfirmDiaLog> { { x => x.img, img } };
@@ -125,9 +188,25 @@
         {
             await ItemManagement.DeleteImg(img);
             imgs = await ItemManagement.GetAllImgsDescending();
-        }
 
+            // Ghi log vào cơ sở dữ liệu
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var userEmail = authState.User.Identity.Name; // Assuming user's email is stored in Identity Name
+
+            var log = new LogAnhNoiBat
+                {
+                    Action = "Delete Image",
+                    UserEmail = userEmail,  // Use email instead of UserId
+                    Details = $"Image deleted: {img.ImgId}",
+                    Timestamp = DateTime.Now
+                };
+
+            AppDbContext.Logs.Add(log);
+            await AppDbContext.SaveChangesAsync(); // Save log to the database
+        }
     }
+
+
     private string userRoleId;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -150,3 +229,70 @@
         }
     }
 }
+<style>
+    /* Style chung cho bảng */
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #ffffff; /* Nền bảng trắng */
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Tạo bóng mờ cho bảng */
+        overflow: hidden;
+    }
+
+        /* Style cho tiêu đề cột */
+        .table thead {
+            background-color: #1976D2; /* Màu nền tiêu đề */
+            color: #ffffff; /* Màu chữ trắng */
+            text-align: left; /* Căn lề trái cho chữ */
+            font-weight: bold;
+            font-size: 1.1rem; /* Tăng kích thước chữ */
+        }
+
+        /* Cột bảng */
+        .table th, .table td {
+            padding: 12px 16px; /* Thêm padding cho các ô */
+            text-align: left;
+            border-bottom: 1px solid #ddd; /* Đường viền dưới cho các ô */
+            font-size: 0.95rem;
+        }
+
+        /* Cách trang trí cho các dòng chẵn */
+        .table tr:nth-child(even) {
+            background-color: #f7f7f7; /* Tô màu nền cho dòng chẵn */
+        }
+
+        /* Cách trang trí cho dòng khi hover */
+        .table tr:hover {
+            background-color: #e3f2fd; /* Màu nền khi hover vào dòng */
+            cursor: pointer; /* Hiển thị con trỏ khi hover */
+        }
+
+        /* Style cho các ô trong bảng */
+        .table td, .table th {
+            font-family: 'Arial', sans-serif;
+        }
+
+            /* Thêm kiểu cho các ô chứa thời gian */
+            .table td:nth-child(4) {
+                font-style: italic; /* Chữ nghiêng cho cột Timestamp */
+            }
+
+    /* Style cho MudButton */
+    .mud-button {
+        font-weight: bold; /* Làm đậm chữ trong nút */
+        padding: 10px 20px; /* Thêm padding cho nút */
+    }
+
+    /* Style cho phần thân bảng */
+    .mud-collapse {
+        margin-top: 20px;
+    }
+
+    /* Thêm hiệu ứng bóng cho các ô khi hover */
+    .table td:hover {
+        background-color: #f1f1f1;
+        transition: background-color 0.3s ease;
+    }
+
+</style>

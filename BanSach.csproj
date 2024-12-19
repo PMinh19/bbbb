@@ -48,6 +48,7 @@
 
   <ItemGroup>
     <Folder Include="Components\Dialog\Donhang\" />
+    <Folder Include="Migrations\" />
     <Folder Include="Views\" />
   </ItemGroup>
 

@@ -1,0 +1,40 @@
+﻿@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public List<LogAnhNoiBat> Logs { get; set; }
+}
+
+<MudDialogContent>
+    <h3>Lịch sử hoạt động</h3>
+    @if (Logs != null && Logs.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Action</th>
+                    <th>User Email</th>
+                    <th>Details</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Logs)
+                {
+                    <tr>
+                        <td>@log.Action</td>
+                        <td>@log.UserEmail</td>
+                        <td>@log.Details</td>
+                        <td>@log.Timestamp</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Không có lịch sử hoạt động.</p>
+    }
+</MudDialogContent>
+
+<MudDialogActions>
+    <MudButton OnClick="() => MudDialog.Close()" Color="Color.Primary">Đóng</MudButton>
+</MudDialogActions>

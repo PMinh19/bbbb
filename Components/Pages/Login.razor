@@ -58,11 +58,7 @@
                     <span>Bạn chưa có tài khoản?</span>
                     <NavLink class="register-link" href="/register">Đăng ký ngay</NavLink>
                 </div>
-                <div class="social-login">
-                    <MudButton class="social-google" OnClick="LoginWithGoogle">
-                        <i class="bx bxl-google"></i> Login with Google
-                    </MudButton>
-                </div>
+               
             </div>
         </div>
     </div>
@@ -285,16 +281,8 @@
             // Gọi CustomAuthStateProvider để cập nhật trạng thái xác thực
             var customAuthStateProvider = (CustomAuthStateProvider)AuthenticationStateProvider;
             await customAuthStateProvider.NotifyAuthenticationStateChangedAsync();
-
-            // Điều hướng về trang chính hoặc returnUrl
-            if (!string.IsNullOrEmpty(returnUrl))
-            {
-                NavigationManager.NavigateTo(returnUrl, true); // Reload trang
-            }
-            else
-            {
-                NavigationManager.NavigateTo("/", true); // Reload trang
-            }
+            NavigationManager.NavigateTo("/", true); // Reload trang
+            
         }
         else
         {
@@ -302,8 +290,5 @@
         }
     }
 
-    private void LoginWithGoogle()
-    {
-        NavigationManager.NavigateTo("api/login/google", true);
-    }
+   
 }

@@ -20,5 +20,6 @@ namespace BanSach.Components.IService
         Task<List<Img>> GetLastFourImgsAsync();
         Task<List<Img>> GetAllImgsDescending();
         Task DeleteImg(Img img);
+       
     }
 }

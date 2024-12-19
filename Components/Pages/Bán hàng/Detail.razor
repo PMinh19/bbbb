@@ -16,6 +16,8 @@
 @inject ICartService CartService
 @inject ISnackbar Snackbar
 @inject ILocalStorageService LocalStorage
+@using BanSach.Components.Data
+@inject AppDbContext _context
 
 <MudGrid Class="pt-2" @key="@productId">
     <MudItem xs="12" sm="12">
@@ -220,10 +222,9 @@
 
     private async Task HandleBuyNow(Product product)
     {
-        
         if (quantity <= 0)
         {
-           await DialogService.ShowMessageBox("Lỗi", "Số lượng phải lớn hơn 0.");
+            await DialogService.ShowMessageBox("Lỗi", "Số lượng phải lớn hơn 0.");
             return; // Dừng hàm nếu số lượng không hợp lệ
         }
 
@@ -242,49 +243,42 @@
             await DialogService.ShowMessageBox("Lỗi", "Không thể xác định người dùng.");
             return;
         }
-        if (quantity <= 0)
+
+        var userId = int.Parse(userIdClaim.Value); // Chuyển đổi UserId sang kiểu số nguyên
+
+        try
         {
-            await DialogService.ShowMessageBox("Lỗi", "Số lượng phải lớn hơn 0.");
-            return;
+            // *** Thêm logic xóa ProductBill liên quan đến UserId ***
+            var billIds = await _context.Bill
+                .Where(b => b.UserID == userId)
+                .Select(b => b.BillId)
+                .ToListAsync();
+
+            var productBills = await _context.Product_bills
+                .Where(pb => billIds.Contains(pb.BillId))
+                .ToListAsync();
+
+            _context.Product_bills.RemoveRange(productBills);
+            await _context.SaveChangesAsync();
+            // ***
+
+            // Tiến hành tạo hóa đơn mới
+            var (billItems, code, message) = await CartService.CreateBillNow(product, userId, quantity);
+            if (billItems != null)
+            {
+                navigationManager.NavigateTo($"/invoice/{billItems.BillId}");
+            }
+            else
+            {
+                await DialogService.ShowMessageBox("Lỗi", "Đặt hàng không thành công. Vui lòng thử lại.");
+            }
         }
-        var (billItems, code, message) = await CartService.CreateBillNow(product, userId, quantity);
-        if (billItems != null)
+        catch (Exception ex)
         {
-
-            navigationManager.NavigateTo($"/invoice/{billItems.BillId}");
+            await DialogService.ShowMessageBox("Lỗi", $"Đã xảy ra lỗi: {ex.Message}");
         }
-        else
-        {
-            DialogService.ShowMessageBox("Lỗi", "Đặt hàng không thành công. Vui lòng thử lại.");
-        }
-        // int userId = int.Parse(userIdClaim.Value);
-
-        
-        // var productBill = new Product_bill
-        //     {
-        //         ProductId = product.ProductId,  
-        //         Price = quantity * product.SellPrice,  
-        //         Quantity = quantity,
-        //         Created = DateTime.Now,
-        //         Updated = DateTime.Now,
-        //     };
-
-        
-        // var productBillResult = await CartService.PlaceProductBill(productBill);
-
-        // if (productBillResult != null)
-        // {
-            
-        //     navigationManager.NavigateTo($"/invoice/{productBillResult.ProductBillId}");
-        // }
-        // else
-        // {
-            
-        //     await DialogService.ShowMessageBox("Lỗi", "Đặt hàng không thành công. Vui lòng thử lại.");
-        // }
-        await DialogService.ShowMessageBox("Lỗi", "Không thể xác định người dùng.");
-        return;
     }
+
 }
 
 

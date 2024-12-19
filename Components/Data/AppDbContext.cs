@@ -9,6 +9,8 @@ namespace BanSach.Components.Data
         {
 
         }
+
+        public DbSet<LogAnhNoiBat> Logs { get; set; }
         public DbSet<Discount> Discount { get; set; }
         public DbSet<QNA> QNA { get; set; }
         public DbSet<Address> Address { get; set; }
@@ -27,6 +29,8 @@ namespace BanSach.Components.Data
         public DbSet<Warehouse> Warehouse { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<LogAnhNoiBat>()
+            .HasKey(l => l.LogId);
             modelBuilder.Entity<Address>()
                 .HasKey(u => u.AddressId);
             modelBuilder.Entity<Address>()

@@ -4,5 +4,6 @@
     {
         public int ImgId { get; set; }
         public string? img { get; set; }
+
     }
 }

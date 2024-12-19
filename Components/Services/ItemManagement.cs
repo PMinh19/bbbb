@@ -117,5 +117,6 @@ namespace BanSach.Components.Services
             db.Imgs.Remove(img);
             await db.SaveChangesAsync();
         }
+       
     }
 }
