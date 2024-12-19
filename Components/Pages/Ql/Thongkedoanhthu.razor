@@ -23,7 +23,7 @@ else if (userRoleId == "3")
     </div>
     <div style="font-size:15px">
         <div class="d-flex justify-space-between align-center pa-8">
-            <MudPaper Class="pa-16 ma-2" Elevation="1">Người dùng: @users.Count</MudPaper>
+            <MudPaper Class="pa-16 ma-2" Elevation="3">Người dùng: @users.Count</MudPaper>
             <MudPaper Class="pa-16 ma-2" Elevation="3">Đơn hàng: @soDon</MudPaper>
             <MudPaper Class="pa-16 ma-2" Elevation="3">Doanh số: @doanhSo sản phẩm</MudPaper>
             <MudPaper Class="pa-16 ma-2" Elevation="3">
@@ -52,14 +52,14 @@ else if (userRoleId == "3")
                     <MudSpacer></MudSpacer>
                 </MudItem>
             </MudHidden>
-            <MudMenu Label="Trạng thái" Color="Color.Primary" Class="px-4">
+            @*  <MudMenu Label="Trạng thái" Color="Color.Primary" Class="px-4">
                 <MudMenuItem>Đang chuẩn bị hàng</MudMenuItem>
                 <MudMenuItem>Đang giao</MudMenuItem>
                 <MudMenuItem>Đã giao</MudMenuItem>
-            </MudMenu>
+            </MudMenu> 
             <MudItem>
                 <MudButton Variant="Variant.Filled" FullWidth Class="px-4" StartIcon="@Icons.Material.Filled.Search" Color="Color.Primary">Tìm kiếm</MudButton>
-            </MudItem>
+            </MudItem> *@
         </MudGrid>
         <MudMenu Class="d-block" LockScroll="true" PositionAtCursor="true" ActivationEvent="MouseEvent.RightClick">
             <!-- ActivatorContent để kích hoạt menu -->
@@ -70,18 +70,22 @@ else if (userRoleId == "3")
                           @bind-SelectedItem="@selectedItem" HorizontalScrollbar="true">
 
                     <HeaderContent>
-                        <MudTh Style=" text-align:center">Đối tượng</MudTh>
-                        <MudTh Style="text-align:center">BillID</MudTh>
-                        <MudTh Style="text-align:center">Tổng tiền</MudTh>
-                        <MudTh Style="text-align:center">Trạng thái</MudTh>
-                        <MudTh Style="text-align:center">Ngày</MudTh>
+                        <MudTh>Đối tượng</MudTh>
+                        <MudTh>BillID</MudTh>
+                        <MudTh>Số lượng</MudTh>
+                        <MudTh>Tổng tiền</MudTh>
+                        <MudTh>Trạng thái</MudTh>
+                        <MudTh>Ngày</MudTh>
                     </HeaderContent>
                     <RowTemplate>
-                        <MudTd DataLabel="Đối tượng" Style="text-align:right;">
+                        <MudTd DataLabel="Đối tượng">
                             @context["UserName"].ToString()
                         </MudTd>
-                        <MudTd DataLabel="BillID" Style="text-align:right;">
-                           @context["BillId"]
+                        <MudTd DataLabel="BillID">
+                            @context["BillId"]
+                        </MudTd>
+                        <MudTd DataLabel="Số lượng">
+                            @context["TotalPrice"]
                         </MudTd>
                         <MudTd Style="text-align:right;" DataLabel="Tổng tiền">
                             @(string.IsNullOrEmpty(context["TotalPrice"].ToString()) ? "0" : Convert.ToDecimal(context["TotalPrice"]).ToString("#,##0")) vnđ
@@ -94,7 +98,7 @@ else if (userRoleId == "3")
                 </MudTable>
             </ActivatorContent>
 
-          
+
         </MudMenu>
 
     </div>
@@ -123,13 +127,13 @@ else if (userRoleId == "1")
     </div>
     <div style="font-size:15px">
         <div class="d-flex justify-space-between align-center pa-8">
-            <MudPaper Class="pa-16 ma-2" Elevation="1">Người dùng: @users.Count</MudPaper>
-            <MudPaper Class="pa-16 ma-2" Elevation="3">Đơn hàng: @soDon</MudPaper>
-            <MudPaper Class="pa-16 ma-2" Elevation="3">Doanh số: @doanhSo sản phẩm</MudPaper>
-            <MudPaper Class="pa-16 ma-2" Elevation="3">
+            <MudPaper Class="pa-16 ma-2" Elevation="3" Style="word-wrap: break-word;">Người dùng: @users.Count</MudPaper>
+            <MudPaper Class="pa-16 ma-2" Elevation="3" Style="word-wrap: break-word;">Đơn hàng: @soDon</MudPaper>
+            <MudPaper Class="pa-16 ma-2" Elevation="3" Style="word-wrap: break-word;">Doanh số: @doanhSo sản phẩm</MudPaper>
+            <MudPaper Class="pa-16 ma-2" Elevation="3" Style="word-wrap: break-word;">
                 Doanh thu: @doanhThu.ToString("C0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))
             </MudPaper>
-            <MudPaper Class="pa-16 ma-2" Elevation="3">
+            <MudPaper Class="pa-16 ma-2" Elevation="3" Style="word-wrap: break-word;">
                 Dự đoán doanh thu tháng tới: @duDoanDoanhThu.ToString("C0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))
             </MudPaper>
         </div>
@@ -148,14 +152,14 @@ else if (userRoleId == "1")
                     <MudSpacer></MudSpacer>
                 </MudItem>
             </MudHidden>
-            <MudMenu Label="Trạng thái" Color="Color.Primary" Class="px-4">
+            @*  <MudMenu Label="Trạng thái" Color="Color.Primary" Class="px-4">
                 <MudMenuItem>Đang chuẩn bị hàng</MudMenuItem>
                 <MudMenuItem>Đang giao</MudMenuItem>
                 <MudMenuItem>Đã giao</MudMenuItem>
-            </MudMenu>
+            </MudMenu> 
             <MudItem>
                 <MudButton Variant="Variant.Filled" FullWidth Class="px-4" StartIcon="@Icons.Material.Filled.Search" Color="Color.Primary">Tìm kiếm</MudButton>
-            </MudItem>
+            </MudItem>*@
         </MudGrid>
         <MudMenu Class="d-block" LockScroll="true" PositionAtCursor="true" ActivationEvent="MouseEvent.RightClick">
             <ActivatorContent>
@@ -164,18 +168,22 @@ else if (userRoleId == "1")
                           T="DataRow" MultiSelection="false" RowClass="pa-0 cursor-pointer" Hover="true" Breakpoint="Breakpoint.None"
                           @bind-SelectedItem="@selectedItem" HorizontalScrollbar="true">
                     <HeaderContent>
-                        <MudTh Style=" text-align:center">Đối tượng</MudTh>
-                        <MudTh Style="text-align:center">BillID</MudTh>
-                        <MudTh Style="text-align:center">Tổng tiền</MudTh>
-                        <MudTh Style="text-align:center">Trạng thái</MudTh>
-                        <MudTh Style="text-align:center">Ngày</MudTh>
+                        <MudTh>Đối tượng</MudTh>
+                        <MudTh>BillID</MudTh>
+                        <MudTh>Số lượng</MudTh>
+                        <MudTh>Tổng tiền</MudTh>
+                        <MudTh>Trạng thái</MudTh>
+                        <MudTh>Ngày</MudTh>
                     </HeaderContent>
                     <RowTemplate>
-                        <MudTd DataLabel="Đối tượng" Style="text-align:right;">
-                            @context["UserName"].ToString() 
+                        <MudTd DataLabel="Đối tượng">
+                            @context["UserName"].ToString()
                         </MudTd>
-                        <MudTd DataLabel="BillID" Style="text-align:right;">
+                        <MudTd DataLabel="BillID">
                             @context["BillId"]
+                        </MudTd>
+                        <MudTd DataLabel="Số lượng">
+                            @context["TotalPrice"]
                         </MudTd>
                         <MudTd Style="text-align:right;" DataLabel="Tổng tiền">
                             @(string.IsNullOrEmpty(context["TotalPrice"].ToString()) ? "0" : Convert.ToDecimal(context["TotalPrice"]).ToString("#,##0")) vnđ
@@ -189,7 +197,7 @@ else if (userRoleId == "1")
 
 
             </ActivatorContent>
-           
+
         </MudMenu>
     </div>
     @if (topProducts != null && topProducts.Any())
@@ -209,7 +217,7 @@ else if (userRoleId == "1")
         </MudTable>
     }
 
-    
+
 }
 
 
@@ -220,8 +228,8 @@ else if (userRoleId == "1")
     private List<DoanhThuViewModel> doanhThus = new();
     private User user = new();
     private List<User> users = new();
-    private DateTime? _fromDate = DateTime.Today.AddDays(-DateTime.Today.Day + 1);
-    private DateTime? _toDate = DateTime.Today;
+    private DateTime? _fromDate;
+    private DateTime? _toDate;
 
     private decimal doanhThu;
     private int doanhSo;
@@ -314,7 +322,7 @@ else if (userRoleId == "1")
             {
                 Console.WriteLine($"RoleId: {userRoleId}");
             }
-          
+
         }
     }
     private async Task OnDateChanged(DateTime? date)
@@ -329,8 +337,8 @@ else if (userRoleId == "1")
             doanhThus = await BillService.GetAllBillDoanhThu(fromDate.Value, toDate.Value);
 
             topProducts = await BillService.GetTopProducts(fromDate.Value, toDate.Value);
-            
-            doanhThu = doanhThus.Sum(x=>x.TotalPrice);
+
+            doanhThu = doanhThus.Sum(x => x.TotalPrice);
             doanhSo = topProducts.Sum(b => b.TotalQuantity);
             soDon = doanhThus.Count();
 
@@ -353,6 +361,7 @@ else if (userRoleId == "1")
 
         // Tạo các cột phù hợp với cấu trúc dữ liệu
         table.Columns.Add("BillId", typeof(int));
+        table.Columns.Add("TotalQuantity", typeof(int));
         table.Columns.Add("BillCreatedAt", typeof(DateTime));
         table.Columns.Add("UserName", typeof(string));
         table.Columns.Add("TotalPrice", typeof(decimal));
@@ -364,7 +373,9 @@ else if (userRoleId == "1")
         {
             dynamic bill = item;
             table.Rows.Add(
+
                 bill.BillId,
+                bill.Quantity,
                 bill.BillCreatedAt,
                 bill.UserName,
                 bill.TotalPrice,

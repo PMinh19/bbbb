@@ -38,70 +38,88 @@
         }
     </div>
 
-    <MudCard>
-        <MudCardContent>
-            @if (discount != null && discounts.Any())
-            {
-                <h2 style="margin-top: 20px;">Khuyến mãi</h2>
-                   <MudGrid Mode="GridMode.Flex" Class="anh" Style="display:flex;">
-                    @foreach (var item in discounts)
-                    {
-                        // Lọc sản phẩm tương ứng với item.ProductId
-                        var product = products.FirstOrDefault(p => p.ProductId == item.ProductId);
-                        if (product != null)
-                        {                        
-                                <MudItem sm="4" md="2" xs="6" Style="margin: 10px;">
-                                    <Button Class="button" @onclick="() => Detail(product.ProductId)" Style="width: 100%; padding: 0;">
-                                        <div>
-                                            <img ObjectFit="ObjectFit.Cover" Src="@product.Img" Height="200" Class="rounded-lg" />
-                                        </div>
-                                        <div style="width: 100%; overflow: hidden; white-space: nowrap;">
-                                            @product.ProductName
-                                        </div>
-                                        <div style="text-decoration:line-through; font-size: 13">
-                                            @string.Format(new CultureInfo("vi-VN"), "{0:N0}", product.SellPrice) vnđ
-                                        </div>
-                                        <div style="color: red">
-                                            @string.Format(new CultureInfo("vi-VN"), "{0:N0}", item.SellPrice) vnđ
-                                        </div>
-                                    </Button>
-                                </MudItem>                         
-                        }
-                    }  
-                    </MudGrid>
-            }
-        </MudCardContent>
-    </MudCard>
-    <MudScrollToTop TopOffset="100" Selector="#another_unique_identifier" Style="z-index:2001;">
-        <div class="mud-theme-secondary px-3 py-6 mud-elevation-16 rounded-xl fixed" style="bottom:20px;left:20px;">Scroll to top custom button</div>
-    </MudScrollToTop>
-
-
-    <MudCard>
-       <MudCard>
+   <MudCard>
     <MudCardContent>
-        @if (topProducts != null && topProducts.Any())
+        @if (discount != null && discounts.Any())
         {
-            <h2 style="margin-top: 20px;">Sách bán chạy</h2>
-
+            <h2 style="margin-top: 20px;">Khuyến mãi</h2>
             <MudGrid Mode="GridMode.Flex" Class="anh" Style="display:flex;">
-                @foreach (var item in topProducts)
+                @foreach (var item in discounts)
                 {
-                    // Tìm sản phẩm khớp với ID trong topProducts
                     var product = products.FirstOrDefault(p => p.ProductId == item.ProductId);
                     if (product != null)
-                    {
+                    {                         
                         <MudItem sm="4" md="2" xs="6" Style="margin: 10px;">
-                            <Button Class="button" @onclick="() => Detail(product.ProductId)" Style="width: 100%;">
+                            <Button Class="button" @onclick="() => Detail(product.ProductId)" Style="width: 100%; padding: 0;">
                                 <div>
+                                    <div Style="position: absolute;color:red; background-color: white; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
+                                        - @item.Rate%
+                                    </div>
                                     <img ObjectFit="ObjectFit.Cover" Src="@product.Img" Height="200" Class="rounded-lg" />
                                 </div>
                                 <div style="width: 100%; overflow: hidden; white-space: nowrap;">
                                     @product.ProductName
                                 </div>
-                                <div>
+                                <div style="text-decoration:line-through; font-size: 13">
                                     @string.Format(new CultureInfo("vi-VN"), "{0:N0}", product.SellPrice) vnđ
                                 </div>
+                                <div style="color: red">
+                                    @string.Format(new CultureInfo("vi-VN"), "{0:N0}", item.SellPrice) vnđ
+                                </div>
+                            </Button>
+                        </MudItem>
+                    }
+                }  
+            </MudGrid>
+        }
+    </MudCardContent>
+</MudCard>
+
+<MudCard>
+    <MudCardContent>
+        @if (topProducts != null && topProducts.Any())
+        {
+            <h2 style="margin-top: 20px;">Sách bán chạy</h2>
+            <MudGrid Mode="GridMode.Flex" Class="anh" Style="display:flex;">
+                @foreach (var item in topProducts)
+                {
+                    var product = products.FirstOrDefault(p => p.ProductId == item.ProductId);
+                    var discount = discounts.FirstOrDefault(d => d.ProductId == item.ProductId);
+
+                    if (product != null)
+                    {
+                        <MudItem sm="4" md="2" xs="6" Style="margin: 10px;">
+                            <Button Class="button" @onclick="() => Detail(product.ProductId)" Style="width: 100%; padding: 0;">
+                                <div>
+                                    @if (discount != null && discount.ProductId == item.ProductId)
+                                    {
+                                        <div Style="position: absolute;color:red; background-color: white; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
+                                            - @discount.Rate%
+                                        </div>
+                                    }
+                                    <img ObjectFit="ObjectFit.Cover" Src="@product.Img" Height="200" Class="rounded-lg" />
+                                </div>
+                                <div style="width: 100%; overflow: hidden; white-space: nowrap;">
+                                    @product.ProductName
+                                </div>
+
+                                @if (discount != null && discount.ProductId == item.ProductId)
+                                {
+                                    <!-- Nếu có khuyến mãi, giá cũ sẽ bị gạch và giá mới sẽ màu đỏ -->
+                                    <div style="text-decoration:line-through; font-size: 13">
+                                        @string.Format(new CultureInfo("vi-VN"), "{0:N0}", product.SellPrice) vnđ
+                                    </div>
+                                    <div style="color: red;">
+                                        @string.Format(new CultureInfo("vi-VN"), "{0:N0}", discount.SellPrice) vnđ
+                                    </div>
+                                }
+                                else
+                                {
+                                    <!-- Nếu không có khuyến mãi, hiển thị giá bình thường -->
+                                    <div>
+                                        @string.Format(new CultureInfo("vi-VN"), "{0:N0}", product.SellPrice) vnđ
+                                    </div>
+                                }
                             </Button>
                         </MudItem>
                     }
@@ -111,48 +129,62 @@
     </MudCardContent>
 </MudCard>
 
-    </MudCard>
-    <MudScrollToTop TopOffset="100" Selector="#another_unique_identifier" Style="z-index:2001;">
-        <div class="mud-theme-secondary px-3 py-6 mud-elevation-16 rounded-xl fixed" style="bottom:20px;left:20px;">Scroll to top custom button</div>
-    </MudScrollToTop>
+  
+<MudCard>
+    <MudCardContent>
+        @if (products != null && products.Any())
+        {
+            <h2 style="margin-top: 20px;">Tất cả sách</h2>
+            <MudGrid Mode="GridMode.Flex" Class="anh" Style="display:flex;">
+                @foreach (var item in products)
+                {
+                    var product = products.FirstOrDefault(p => p.ProductId == item.ProductId);
+                    var discount = discounts.FirstOrDefault(d => d.ProductId == item.ProductId);
 
-    <MudGrid Class="pt-2">
-        <MudItem>
-            <MudCard>
-                <MudCardContent>
-                    @if (products != null && products.Any())
+                    if (product != null)
                     {
-                        <MudGrid Mode="GridMode.Flex" Class="anh" Style="display:flex;">
-                            @foreach (var item in products)
-                            {
-                                var d = discounts.FirstOrDefault(d => d.ProductId != item.ProductId);
-                                if (product != null)
+                        <MudItem sm="4" md="2" xs="6" Style="margin: 10px;">
+                            <Button Class="button" @onclick="() => Detail(product.ProductId)" Style="width: 100%; padding: 0;">
+                                <div>
+                                    @if (discount != null)
+                                    {
+                                        <div Style="position: absolute;color:red; background-color: white; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
+                                            - @discount.Rate%
+                                        </div>
+                                    }
+                                    <img ObjectFit="ObjectFit.Cover" Src="@product.Img" Height="200" Class="rounded-lg" />
+                                </div>
+                                <div style="width: 100%; overflow: hidden; white-space: nowrap;">
+                                    @product.ProductName
+                                </div>
+
+                                @if (discount != null)
                                 {
-                                    <MudItem sm="4" md="2" xs="6" Style="margin: 10px;">
-                                        <Button Class="button" @onclick="() => Detail(item.ProductId)" Style="width: 100%;">
-                                            <div><img ObjectFit="ObjectFit.Cover" Src="@item.Img" Height="200" Class="rounded-lg" /></div>
-                                            <div style="width: 100%; overflow: hidden; white-space: nowrap;">
-                                                @item.ProductName
-                                            </div>
-                                            <div>@string.Format(new CultureInfo("vi-VN"), "{0:N0}", item.SellPrice) vnđ </div>
-                                        </Button>
-                                    </MudItem>
+                                    <!-- Nếu có khuyến mãi, giá cũ sẽ bị gạch và giá mới sẽ màu đỏ -->
+                                    <div style="text-decoration:line-through; font-size: 13">
+                                        @string.Format(new CultureInfo("vi-VN"), "{0:N0}", product.SellPrice) vnđ
+                                    </div>
+                                    <div style="color: red;">
+                                        @string.Format(new CultureInfo("vi-VN"), "{0:N0}", discount.SellPrice) vnđ
+                                    </div>
                                 }
-                            }
-                        </MudGrid>
+                                else
+                                {
+                                    <!-- Nếu không có khuyến mãi, hiển thị giá bình thường -->
+                                    <div>
+                                        @string.Format(new CultureInfo("vi-VN"), "{0:N0}", product.SellPrice) vnđ
+                                    </div>
+                                }
+                            </Button>
+                        </MudItem>
+                    }
+                }
+            </MudGrid>
+        }
+    </MudCardContent>
+</MudCard>
 
-                    }
-                    else
-                    {
-                        <MudText>No products available.</MudText>
-                    }
-                    <MudScrollToTop TopOffset="100" Selector="#another_unique_identifier" Style="z-index:2001;">
-                        <div class="mud-theme-secondary px-3 py-6 mud-elevation-16 rounded-xl fixed" style="bottom:20px;left:20px;">Scroll to top custom button</div>
-                    </MudScrollToTop>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-    </MudGrid>
+
     <!-- Footer Section -->
     <MudPaper Class="pa-4 mt-4" Style="text-align: center; padding: 10px;">
         <MudText Class="mud-typography-body2">Liên hệ: contact@webbookapp.com</MudText>

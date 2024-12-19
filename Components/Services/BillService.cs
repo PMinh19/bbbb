@@ -76,7 +76,7 @@ namespace BanSach.Components.Services
 
             var result = await (from b in db.Bill
                                 join u in db.Users on b.UserID equals u.UserId
-                                where b.Created_at.HasValue && b.Created_at.Value.Date >= fromDateOnly && b.Created_at.Value.Date <= toDateOnly && b.Status == "Completed"
+                                where b.Created_at.HasValue && b.Created_at.Value.Date >= fromDateOnly && b.Created_at.Value.Date <= toDateOnly
                                 orderby b.Created_at descending
                                 select new DoanhThuViewModel
                                 {
@@ -99,7 +99,7 @@ namespace BanSach.Components.Services
                                join pb in db.Product_bills on b.BillId equals pb.BillId
                                join p in db.Products on pb.ProductId equals p.ProductId
                                where b.Created_at.HasValue && b.Created_at.Value.Date >= fromDateOnly && b.Created_at.Value.Date <= toDateOnly
-                                     && b.Status == OrderStatus.Completed.ToString()
+                                    
                                select new
                                {
                                    ProductId = pb.ProductId,
@@ -216,7 +216,7 @@ namespace BanSach.Components.Services
                 return false;
             }
             checkBill.Status = OrderStatus.Cancelled.ToString(); // Chuyển trạng thái hóa đơn thành "Đã hủy"
-            await db.SaveChangesAsync(); 
+            await db.SaveChangesAsync();
             return true;
         }
         public async Task<bool> CompleteProductBillAsync(BillVanDonDTO bill)
@@ -275,7 +275,35 @@ namespace BanSach.Components.Services
 
             bill.DeliveryId = deleveryCheck.DeliveryId;
             bill.WarehouseID = WarehouseID;
+            // Cập nhật số lượng sản phẩm trong kho
+            // Lọc chỉ các sản phẩm thuộc hóa đơn cụ thể
+            var productBills = await db.Product_bills
+                .Where(pb => pb.BillId == BillID) // Thêm điều kiện để chỉ lấy các sản phẩm trong hóa đơn hiện tại
+                .ToListAsync();
+
+            foreach (var detail in productBills)
+            {
+                var warehouseProduct = await db.Products
+                    .FirstOrDefaultAsync(wp => wp.ProductId == detail.ProductId);
+
+                if (warehouseProduct == null)
+                {
+                    return (new Delivery(), 404, $"Không tìm thấy sản phẩm {detail.ProductId}");
+                }
+
+                if (warehouseProduct.Quantity < detail.Quantity)
+                {
+                    return (new Delivery(), 400, $"Số lượng sản phẩm {detail.ProductId} không đủ trong kho");
+                }
+
+                // Trừ số lượng trong kho
+                warehouseProduct.Quantity -= detail.Quantity;
+            }
+
+            // Lưu thay đổi vào cơ sở dữ liệu
             await db.SaveChangesAsync();
+
+
             return (deleveryCheck, 200, "Thành công");
         }
 
