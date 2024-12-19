@@ -17,6 +17,7 @@
     {
         Pending,     // Đang chờ xử lý
         Processing,  // Đang xử lý
+        Delivering,  // Đang giao
         Completed,   // Đã hoàn tất
         Cancelled    // Đã hủy
     }

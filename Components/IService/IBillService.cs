@@ -18,7 +18,7 @@ namespace BanSach.Components.IService
         Task<List<Delivery>> GetAllDelivery();
 
 
-
+        Task<bool> CompleteProductBillAsync(BillVanDonDTO bill);
         Task<List<DoanhThuViewModel>> GetAllBillDoanhThu(DateTime? fromDate, DateTime? toDate);
         Task<PagedResult<BillVanDonDTO>> GetBillDetailsAsync(int page, int pageSize);
 

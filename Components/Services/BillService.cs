@@ -69,10 +69,6 @@ namespace BanSach.Components.Services
         }
 
 
-
-
-
-
         public async Task<List<DoanhThuViewModel>> GetAllBillDoanhThu(DateTime? fromDate, DateTime? toDate)
         {
             var fromDateOnly = fromDate?.Date ?? DateTime.MinValue;
@@ -206,7 +202,7 @@ namespace BanSach.Components.Services
             checkBill.Status = OrderStatus.Processing.ToString();
             checkBill.Note = "Đã duyệt đơn";
             checkBill.ApproveBill = true;
-            checkBill.Status = OrderStatus.Completed.ToString();
+            checkBill.Status = OrderStatus.Delivering.ToString();
             checkBill.Updated_at = DateTime.Now;
             await db.SaveChangesAsync();
 
@@ -219,15 +215,20 @@ namespace BanSach.Components.Services
             {
                 return false;
             }
-            var listProductBill = await db.Product_bills.Where(x => x.BillId == checkBill.BillId).ToListAsync();
-            if (listProductBill.Count > 0)
+            checkBill.Status = OrderStatus.Cancelled.ToString(); // Chuyển trạng thái hóa đơn thành "Đã hủy"
+            await db.SaveChangesAsync(); 
+            return true;
+        }
+        public async Task<bool> CompleteProductBillAsync(BillVanDonDTO bill)
+        {
+            var checkBill = await db.Bill.FirstOrDefaultAsync(x => x.BillId == bill.BillId);
+            if (checkBill == null)
             {
-                db.RemoveRange(listProductBill);
+                return false;
             }
-            db.Remove(checkBill);
+            checkBill.Status = OrderStatus.Completed.ToString(); // Chuyển trạng thái hóa đơn thành "hoàn thành"
             await db.SaveChangesAsync();
             return true;
-
         }
 
         public async Task<List<ProductBillDetailDto>> GetProductsByBillId(int billId)
