@@ -23,7 +23,7 @@
     <MudItem xs="12" sm="12">
         @if (product != null)
         {
-           
+
             <MudGrid>
                 <MudItem xs="0" sm="1" md="1"></MudItem>
                 <MudItem xs="12" sm="5" md="5">
@@ -57,7 +57,7 @@
                         </MudItem>
                         <MudItem>
                             <MudButton Class="pt-1" style="padding:10px" ButtonType="ButtonType.Submit" Variant="Variant.Filled" OnClick="@(() => HandleBuyNow(product))">Mua hàng</MudButton>
-                           
+
                             <MudButton Class="pt-1" style="padding:10px" ButtonType="ButtonType.Submit" Variant="Variant.Filled" OnClick="AddCart">Thêm vào giỏ hàng</MudButton>
                         </MudItem>
 
@@ -80,13 +80,13 @@
                 </MudItem>
             </MudGrid>
         }
-       
+
     </MudItem>
 </MudGrid>
 
 @code {
     private int userId;
-    public int quantity=1;
+    public int quantity = 1;
     public int categoryId;
     public string? categoryName;
     private Product? product;
@@ -157,7 +157,7 @@
     }
     protected override async Task OnInitializedAsync()
     {
-        if (!isInitialized) 
+        if (!isInitialized)
         {
             product = await GetProduct();
             categoryId = product.CategoryId;
@@ -193,7 +193,8 @@
     private async Task<Product_cart> CreatProductCart() => await CartService.CreatePCart(product_cart);
     private async Task AddCart()
     {
-        if (userId == 0){
+        if (userId == 0)
+        {
             await DialogService.ShowMessageBox("Lỗi", "Vui lòng đăng nhập");
             return;
         }
@@ -218,7 +219,7 @@
         // Hiển thị thông báo sau khi thêm sản phẩm vào giỏ
         Snackbar.Add("Sản phẩm đã được thêm vào giỏ hàng.", Severity.Success);
     }
-    
+
 
     private async Task HandleBuyNow(Product product)
     {
@@ -248,7 +249,7 @@
 
         try
         {
-            // *** Thêm logic xóa ProductBill liên quan đến UserId ***
+            // * Thêm logic xóa ProductBill liên quan đến UserId *
             var billIds = await _context.Bill
                 .Where(b => b.UserID == userId)
                 .Select(b => b.BillId)
@@ -260,7 +261,7 @@
 
             _context.Product_bills.RemoveRange(productBills);
             await _context.SaveChangesAsync();
-            // ***
+            // *
 
             // Tiến hành tạo hóa đơn mới
             var (billItems, code, message) = await CartService.CreateBillNow(product, userId, quantity);
@@ -280,6 +281,3 @@
     }
 
 }
-
-
-

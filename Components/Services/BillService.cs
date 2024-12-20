@@ -202,7 +202,7 @@ namespace BanSach.Components.Services
             checkBill.Status = OrderStatus.Processing.ToString();
             checkBill.Note = "Đã duyệt đơn";
             checkBill.ApproveBill = true;
-            checkBill.Status = OrderStatus.Delivering.ToString();
+            checkBill.Status = OrderStatus.AwaitingPickup.ToString();
             checkBill.Updated_at = DateTime.Now;
             await db.SaveChangesAsync();
 

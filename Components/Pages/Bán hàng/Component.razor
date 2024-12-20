@@ -13,13 +13,9 @@
 @rendermode InteractiveServer
 @inject IDialogService DialogService
 @inject ICartService CartService
-@using BanSach.Components.Data
-@inject AppDbContext _context
+
 <style>
    
-
-    
-
     .cart-item {
         display: flex;
         align-items: center;
@@ -234,28 +230,13 @@
         }
         int userId = int.Parse(userIdClaim.Value);
 
-        // Lấy tất cả các BillId của UserId từ bảng Bill
-        var billIds = await _context.Bill
-            .Where(b => b.UserID == userId)
-            .Select(b => b.BillId)
-            .ToListAsync();
-
-        // Lấy tất cả các ProductBill liên quan tới BillId
-        var productBills = await _context.Product_bills
-            .Where(pb => billIds.Contains(pb.BillId))
-            .ToListAsync();
-
-        // Xóa tất cả các bản ghi trong ProductBill
-        _context.Product_bills.RemoveRange(productBills);
-        await _context.SaveChangesAsync();
-
         if (product_carts == null || !product_carts.Any())
         {
             DialogService.ShowMessageBox("Lỗi", "Không có sản phẩm nào trong giỏ hàng.");
             return;
         }
-
         selectedItems = product_carts.Where(x => x.IsSelected).ToList();
+
 
         if (!selectedItems.Any())
         {
@@ -266,6 +247,7 @@
         var (billItems, code, message) = await CartService.CreateBillMain(selectedItems);
         if (billItems != null)
         {
+
             navigationManager.NavigateTo($"/invoice/{billItems.BillId}");
         }
         else
@@ -274,7 +256,6 @@
         }
         return;
     }
-
 
     private async Task RemoveFromCart(Product_cart cartItem)
     {

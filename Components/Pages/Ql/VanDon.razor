@@ -73,6 +73,7 @@
         </RowTemplate>
 
         <PagerContent>
+
             <MudTablePager />
         </PagerContent>
     </MudTable>
@@ -233,8 +234,7 @@
                 var updatedBill = pagedItems.FirstOrDefault(b => b.BillId == bill.BillId);
                 if (updatedBill != null)
                 {
-                    updatedBill.ApproveBill = true;
-                    updatedBill.Status = "Chờ lấy hàng";
+                    updatedBill.ApproveBill = true;                  
                 }
 
                 StateHasChanged();
@@ -294,7 +294,7 @@
                 if (updatedBill != null)
                 {
                     updatedBill.ApproveBill = true;
-                    updatedBill.Status = "Đã giao hàng";
+                   
                 }
 
                 StateHasChanged();
