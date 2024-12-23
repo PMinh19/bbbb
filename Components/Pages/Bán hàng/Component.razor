@@ -10,12 +10,13 @@
 @inject HttpClient httpClient
 @inject NavigationManager navigationManager
 @inject IItemManagement ItemManagement
+@inject IDiscountServicecs DiscountService
 @rendermode InteractiveServer
 @inject IDialogService DialogService
 @inject ICartService CartService
 
 <style>
-   
+
     .cart-item {
         display: flex;
         align-items: center;
@@ -116,8 +117,6 @@
         color: #e74c3c; /* Màu đỏ cho thông báo giỏ hàng trống */
     }
 
-
-
 </style>
 <MudGrid Class="cart-container pt-2">
     <MudItem xs="12" sm="12">
@@ -126,27 +125,47 @@
             @foreach (var cartItem in product_carts)
             {
                 <MudGrid Class="cart-item">
-                   
+
                     <MudCheckBox @bind-Value="cartItem.IsSelected" Color="@Color.Primary"></MudCheckBox>
-                  
+
                     <MudItem xs="4" sm="3" md="3">
                         <MudImage Class="cart-item-image" ObjectFit="ObjectFit.Cover" Width="150" Height="150" Src="@cartItem.Product.Img" />
                     </MudItem>
 
-                   
+
                     <MudItem md="4" sm="4" xs="4" Class="cart-item-details">
                         <div class="cart-item-name">@cartItem.Product.ProductName</div>
-                        <div class="cart-item-price">@string.Format(new CultureInfo("vi-VN"), "{0:N0}", cartItem.Product.SellPrice) vnđ</div>
+                        @{
+                            var discount = discounts.FirstOrDefault(d => d.ProductId == cartItem.ProductId);
+                        }
+
+                        @if (discount != null)
+                        {
+                            <!-- Hiển thị giá gốc (gạch ngang) -->
+                            <div style="text-decoration:line-through; font-size: 13px;">
+                                @string.Format(new CultureInfo("vi-VN"), "{0:N0}", cartItem.Product.SellPrice) vnđ
+                            </div>
+                            <div style="color: red">
+                                @string.Format(new CultureInfo("vi-VN"), "{0:N0}", discount.SellPrice) vnđ
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Nếu không có giảm giá, chỉ hiển thị giá gốc -->
+                            <div>
+                                @string.Format(new CultureInfo("vi-VN"), "{0:N0}", cartItem.Product.SellPrice) vnđ
+                            </div>
+                        }
+
                     </MudItem>
 
                     <MudItem xs="2" sm="2" md="2" Class="cart-item-quantity">
-                        
-                        <MudNumericField T="int" @bind-Value="cartItem.Quantity" Min="1"
-                                         Style="margin-bottom: 10px; width: 80px; font-weight: bold; color: black; background-color: white; border: 2px solid #ccc;" />
+
+                        <MudNumericField T="int" @bind-Value="cartItem.Quantity" Min="1" />
                     </MudItem>
 
                     <MudItem xs="2" sm="2" md="2" Class="cart-item-actions">
-                   
+
                         <MudButton Class="cart-item-remove" Variant="Variant.Filled" @onclick="() => RemoveFromCart(cartItem)">
                             Xóa
                         </MudButton>
@@ -170,7 +189,7 @@
 @code {
     private int userId;
     private List<Product_cart> product_carts = new List<Product_cart>();
-
+    private List<Discount> discounts = new List<Discount>();
     private List<Product_cart> selectedItems = new();
 
 
@@ -197,8 +216,9 @@
         }
         catch (Exception ex)
         {
-            DialogService.ShowMessageBox("Lỗi", $"Không thể tải giỏ hàng: {ex.Message}");
+            await DialogService.ShowMessageBox("Lỗi", $"Không thể tải giỏ hàng: {ex.Message}");
         }
+        discounts = await DiscountService.GetAllItem();
     }
 
     private async Task<List<Product_cart>> GetAllProductCart()
@@ -218,21 +238,21 @@
 
         if (user == null || !user.Identity.IsAuthenticated)
         {
-            DialogService.ShowMessageBox("Lỗi", "Vui lòng đăng nhập để tiếp tục.");
+            await DialogService.ShowMessageBox("Lỗi", "Vui lòng đăng nhập để tiếp tục.");
             return;
         }
 
         var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
         if (userIdClaim == null)
         {
-            DialogService.ShowMessageBox("Lỗi", "Không thể xác định người dùng.");
+            await DialogService.ShowMessageBox("Lỗi", "Không thể xác định người dùng.");
             return;
         }
         int userId = int.Parse(userIdClaim.Value);
 
         if (product_carts == null || !product_carts.Any())
         {
-            DialogService.ShowMessageBox("Lỗi", "Không có sản phẩm nào trong giỏ hàng.");
+            await DialogService.ShowMessageBox("Lỗi", "Không có sản phẩm nào trong giỏ hàng.");
             return;
         }
         selectedItems = product_carts.Where(x => x.IsSelected).ToList();
@@ -240,7 +260,7 @@
 
         if (!selectedItems.Any())
         {
-            DialogService.ShowMessageBox("Lỗi", "Vui lòng chọn ít nhất một sản phẩm hợp lệ để thanh toán.");
+            await DialogService.ShowMessageBox("Lỗi", "Vui lòng chọn ít nhất một sản phẩm hợp lệ để thanh toán.");
             return;
         }
 
@@ -252,7 +272,7 @@
         }
         else
         {
-            DialogService.ShowMessageBox("Lỗi", "Đặt hàng không thành công. Vui lòng thử lại.");
+            await DialogService.ShowMessageBox("Lỗi", "Đặt hàng không thành công. Vui lòng thử lại.");
         }
         return;
     }
@@ -265,14 +285,14 @@
 
             product_carts = await GetAllProductCart();
 
-            DialogService.ShowMessageBox("Thành công", "Sản phẩm đã được xóa khỏi giỏ hàng.");
+            await DialogService.ShowMessageBox("Thành công", "Sản phẩm đã được xóa khỏi giỏ hàng.");
         }
         catch (Exception ex)
         {
-            DialogService.ShowMessageBox("Lỗi", $"Không thể xóa sản phẩm: {ex.Message}");
+            await DialogService.ShowMessageBox("Lỗi", $"Không thể xóa sản phẩm: {ex.Message}");
         }
     }
 
 
-  
+
 }

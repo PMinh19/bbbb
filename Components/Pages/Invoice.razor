@@ -44,6 +44,7 @@
             </MudSelect>
 
             <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="PlaceOrder">Đặt hàng</MudButton>
+            <MudSpacer Variant="Variant.Filled" Color="Color.Error">Hủy</MudSpacer>
         </MudPaper>
     </MudItem>
 
@@ -89,16 +90,16 @@
 
 @code {
     [Parameter] public int productBillId { get; set; }
-    private Product_bill productBill;
-    private Bill billUser;
-    private List<ProductBillDetailDto> listProductUserBill;
+    private Product_bill productBill = new Product_bill();
+    private Bill billUser = new Bill();
+    private List<ProductBillDetailDto> listProductUserBill = new List<ProductBillDetailDto>();
     private ShippingInfoDTO shippingInfoDTO = new ShippingInfoDTO();
 
     // Biến lưu thông tin giao hàng
-    private string receiverName; // Tên người nhận
-    private string phoneNumber;  // Số điện thoại
-    private string selectedCity; // Thành phố
-    private string selectedDistrict; // Quận/Huyện
+    private string? receiverName; // Tên người nhận
+    private string? phoneNumber;  // Số điện thoại
+    private string? selectedCity; // Thành phố
+    private string? selectedDistrict; // Quận/Huyện
     private Pay pay = new Pay { Name = "Tiền mặt" };  // Mặc định là Tiền mặt
 
     // Danh sách thành phố và quận/huyện
@@ -177,7 +178,7 @@
         }
         catch (Exception ex)
         {
-            DialogService.ShowMessageBox("Lỗi", $"Không thể tải hóa đơn: {ex.Message}");
+           await DialogService.ShowMessageBox("Lỗi", $"Không thể tải hóa đơn: {ex.Message}");
         }
     }
 
@@ -230,7 +231,9 @@
             await DialogService.ShowMessageBox("Lỗi", $"Đã xảy ra lỗi: {ex.Message}");
         }
     }
+    private async Task DeleteOrder(){
 
+    }
     private void DeleteProduct(ProductBillDetailDto product)
     {
 
@@ -240,14 +243,14 @@
     // Lớp để lưu thông tin thành phố và quận/huyện
     private class City
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public List<string> Districts { get; set; }
     }
 
     // Lớp để lưu thông tin phương thức thanh toán
     public class Pay
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public override bool Equals(object o)
         {

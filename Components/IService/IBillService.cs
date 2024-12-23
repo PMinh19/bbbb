@@ -33,6 +33,7 @@ namespace BanSach.Components.IService
 
         Task<List<Warehouse>> GetAllWarehouse();
 
-
+        Task<List<ProductBillDetailDto>> GetProductsByBill();
+        Task<TopProductViewModel> GetTotalQuantityP(int productId);
     }
 }

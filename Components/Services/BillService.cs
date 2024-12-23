@@ -99,7 +99,7 @@ namespace BanSach.Components.Services
                                join pb in db.Product_bills on b.BillId equals pb.BillId
                                join p in db.Products on pb.ProductId equals p.ProductId
                                where b.Created_at.HasValue && b.Created_at.Value.Date >= fromDateOnly && b.Created_at.Value.Date <= toDateOnly
-                                    
+
                                select new
                                {
                                    ProductId = pb.ProductId,
@@ -226,6 +226,7 @@ namespace BanSach.Components.Services
             {
                 return false;
             }
+            checkBill.Updated_at = DateTime.Now;
             checkBill.Status = OrderStatus.Completed.ToString(); // Chuyển trạng thái hóa đơn thành "hoàn thành"
             await db.SaveChangesAsync();
             return true;
@@ -237,6 +238,23 @@ namespace BanSach.Components.Services
                                   join bill in db.Bill on pb.BillId equals bill.BillId
                                   join p in db.Products on pb.ProductId equals p.ProductId
                                   where pb.BillId == billId
+                                  select new ProductBillDetailDto
+                                  {
+                                      ProductBillId = pb.ProductBillId,
+                                      Quantity = pb.Quantity,
+                                      Price = pb.Price,
+                                      Bills = bill,
+                                      Product = p,
+                                  }).ToListAsync();
+
+            return products;
+        }
+        public async Task<List<ProductBillDetailDto>> GetProductsByBill()
+        {
+            var products = await (from pb in db.Product_bills
+                                  join bill in db.Bill on pb.BillId equals bill.BillId
+                                  join p in db.Products on pb.ProductId equals p.ProductId
+
                                   select new ProductBillDetailDto
                                   {
                                       ProductBillId = pb.ProductBillId,
@@ -369,5 +387,38 @@ namespace BanSach.Components.Services
         {
             return await db.Warehouse.ToListAsync();
         }
+
+        public async Task<TopProductViewModel> GetTotalQuantityP(int productId)
+        {
+            // Lấy thông tin hóa đơn và sản phẩm theo productId
+            var bills = await (from b in db.Bill
+                               join pb in db.Product_bills on b.BillId equals pb.BillId
+                               join p in db.Products on pb.ProductId equals p.ProductId
+                               where pb.ProductId == productId  // Lọc theo ProductId
+                               select new
+                               {
+                                   ProductId = pb.ProductId,
+                                   ProductName = p.ProductName,
+                                   Quantity = pb.Quantity,
+                                   TotalPrice = b.TotalPrice,
+                                   Price = p.SellPrice
+                               }).ToListAsync();
+
+            // Tính tổng số lượng và tổng giá trị bán được cho sản phẩm theo productId
+            var product = bills
+                            .GroupBy(b => b.ProductId)
+                            .Select(g => new TopProductViewModel
+                            {
+                                ProductId = g.Key,
+                                ProductName = g.FirstOrDefault().ProductName,
+                                TotalQuantity = g.Sum(b => b.Quantity),   
+                                TotalPrice = g.Sum(b => b.TotalPrice),   
+                                Price = g.FirstOrDefault().Price       
+                            })
+                            .FirstOrDefault(); 
+
+            return product;
+        }
+        
     }
 }
