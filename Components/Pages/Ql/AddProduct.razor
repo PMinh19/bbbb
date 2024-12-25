@@ -23,6 +23,9 @@ else if (userRoleId == "3")
     <div style="display:flex ; justify-content:center;  padding: 30px 30px 0 30px; text-align:center">
         <h2 style="font-family:Arial">THÊM SÁCH</h2>
     </div>
+    <MudCardActions>
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="Add">Thêm</MudButton>
+    </MudCardActions>
     <MudGrid>
         <MudItem xs="12" sm="12">
             <MudCard>
@@ -125,13 +128,11 @@ else if (userRoleId == "3")
                     }
                     else
                     {
-                        <MudText Color="Color.Error">Sản phẩm không tồn tại.</MudText>
+                        
                     }
 
                 </MudCardContent>
-                <MudCardActions>
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="Add">Thêm</MudButton>
-                </MudCardActions>
+                
             </MudCard>
         </MudItem>
     </MudGrid>

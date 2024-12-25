@@ -16,6 +16,18 @@ namespace BanSach.Components.Services
         {
             return await db.Discount.ToListAsync();
         }
+        public async Task<List<Discount>> GetAllDiscountsTodayAsync()
+        {
+            // Lấy ngày hôm nay
+            DateTime today = DateTime.Today;
+
+            // Truy vấn danh sách khuyến mãi có StartDate <= ngày hôm nay và EndDate >= ngày hôm nay
+            var discountsToday = await db.Discount
+                .Where(d => d.StartDate <= today && d.EndDate >= today)
+                .ToListAsync();
+
+            return discountsToday;
+        }
         public async Task<Discount> CreateItem(Discount Discount)
         {
             // Thêm Discount vào cơ sở dữ liệu

@@ -25,7 +25,7 @@ else if (userRoleId == "3")
 
     </div>
     <MudTable Items="@discounts" Dense="true" Breakpoint="Breakpoint.None" Virtualize="true"
-              Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="true" Hover="true" HorizontalScrollbar="true">
+    Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="true" Hover="true" HorizontalScrollbar="true">
 
         <HeaderContent>
             <MudTh>#</MudTh>
@@ -80,7 +80,7 @@ else if (userRoleId == "1")
 
     </div>
     <MudTable Items="@discounts" Dense="true" Breakpoint="Breakpoint.None" Virtualize="true"
-              Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="true" Hover="true" HorizontalScrollbar="true">
+    Style="white-space:nowrap" Bordered="true" RowClass="cursor-pointer" Striped="true" Hover="true" HorizontalScrollbar="true">
 
         <HeaderContent>
             <MudTh>#</MudTh>
@@ -142,7 +142,7 @@ else if (userRoleId == "1")
         pageIndex = index;
     }
     private async Task<List<Product>> getAllSach() => await ItemManagement.GetAllItem();
-   
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -167,6 +167,7 @@ else if (userRoleId == "1")
             await DiscountService.EditItem(Discount);
             await DiscountService.GetAllItem();
         }
+        StateHasChanged();
     }
     private async Task CreateAsync(Discount Discount)
     {
@@ -181,7 +182,7 @@ else if (userRoleId == "1")
             await DiscountService.EditItem(Discount);
             await DiscountService.GetAllItem();
         }
-
+        StateHasChanged();
     }
     private async Task DeleteAsync(Discount Discount)
     {
@@ -195,7 +196,7 @@ else if (userRoleId == "1")
             await DiscountService.DeleteItem(Discount);
             await DiscountService.GetAllItem();
         }
-
+        StateHasChanged();
     }
     private string? userRoleId;
 

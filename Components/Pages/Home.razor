@@ -26,7 +26,7 @@
     }
     else
     {
-            <MudCarousel TData="string" Interval="4000" InitialItemIndex="0" ShowBullets="false" style="height:300px; width:100%; display: flex; justify-content: center;">
+            <MudCarousel TData="string" Interval="4000" InitialItemIndex="0" ShowBullets="false" style="height:300px; width:80%; display: flex; justify-content: center;">
             @foreach (var img in imgs)
             {
                 <MudCarouselItem>
@@ -248,7 +248,7 @@
         DateTime fromDateOnly = toDateOnly.AddMonths(-1);
         products = await getAllSach();
         categories = await ItemManagement.GetAllCategogy();
-        discounts = await DiscountService.GetAllItem();
+        discounts = await DiscountService.GetAllDiscountsTodayAsync();
         // Đảm bảo imgs được tải đầy đủ trước khi hiển thị
         imgs = await ItemManagement.GetLastFourImgsAsync();
          topProducts = await BillService.GetTopProducts(fromDateOnly, toDateOnly);
