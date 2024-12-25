@@ -38,10 +38,8 @@
                             <div style="position: relative; width: 100%; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);">
                                 <img src="@img.img" alt="Product Image" style="width: 100%; height: 200px; object-fit: cover; display: block;" />
                                 <MudIconButton Icon="@Icons.Material.Filled.Close"
-                                               OnClick="@((e) => DeleteAsync(img))"
-                                               Color="Color.Error"
-                                               Size="Size.Small"
-                                               Style="position: absolute; top: 8px; right: 8px; border-radius: 50%; background-color: white; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);" />
+                                 OnClick="@((e) => DeleteAsync(img))" Color="Color.Error" Size="Size.Small"
+                                 Style="position: absolute; top: 8px; right: 8px; border-radius: 50%; background-color: white; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);" />
                             </div>
                         </MudItem>
                     }
@@ -64,27 +62,21 @@
             <MudButton OnClick="OnExpandCollapseClick">@(_expanded ? "Ẩn Lịch Sử" : "Xem Lịch Sử")</MudButton>
             <MudDivider />
             <MudCollapse Expanded="_expanded">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Action</th>
-                            <th>User Email</th>
-                            <th>Details</th>
-                            <th>Timestamp</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var log in logs)
-                        {
-                            <tr>
-                                <td>@log.Action</td>
-                                <td>@log.UserEmail</td>
-                                <td>@log.Details</td>
-                                <td>@log.Timestamp</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                <MudTable Items="logs" Dense="true" Hover="true">
+                    <HeaderContent>
+                        <MudTh>Action</MudTh>
+                        <MudTh>User Email</MudTh>
+                        <MudTh>Details</MudTh>
+                        <MudTh>Timestamp</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Action">@context.Action</MudTd>
+                        <MudTd DataLabel="User Email">@context.UserEmail</MudTd>
+                        <MudTd DataLabel="Details">@context.Details</MudTd>
+                        <MudTd DataLabel="Timestamp">@context.Timestamp</MudTd>
+                    </RowTemplate>
+                </MudTable>
+
             </MudCollapse>
         </MudStack>
     </MudPaper>

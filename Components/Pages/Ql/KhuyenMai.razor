@@ -192,12 +192,12 @@ else if (userRoleId == "1")
 
         if (!result!.Canceled)
         {
-            await DiscountService.EditItem(Discount);
+            await DiscountService.DeleteItem(Discount);
             await DiscountService.GetAllItem();
         }
 
     }
-    private string userRoleId;
+    private string? userRoleId;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

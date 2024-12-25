@@ -8,162 +8,119 @@
 @using BanSach.Components.Model.ViewModel;
 
 @using System.Globalization
+
 <MudGrid Class="pt-2">
-    <MudItem xs="12" sm="12" md="6">
-        <!-- Thông tin người nhận hàng -->
-        <MudPaper Class="mud-padding-4" Elevation="4">
-            <div class="mud-typography-h6 mud-text-center" style="font-weight: bold;">Thông Tin Người Nhận Hàng</div>
-            <MudDivider />
-            <MudTextField Label="Tên người nhận" @bind-Value="receiverName" Variant="Variant.Outlined" Required="true" />
-            <MudTextField Label="Số điện thoại" @bind-Value="phoneNumber" Variant="Variant.Outlined" Required="true" />
-
-            <MudSelect T="string" Label="Chọn thành phố" @bind-Value="selectedCity" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Clearable>
-                @foreach (var city in cities)
-                {
-                    <MudSelectItem Value="@city.Name">@city.Name</MudSelectItem>
-                }
-            </MudSelect>
-
-            <MudSelect T="string" Label="Chọn quận/huyện" @bind-Value="selectedDistrict" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Clearable>
-                @if (!string.IsNullOrEmpty(selectedCity))
-                {
-                    var selectedCityObj = cities.FirstOrDefault(c => c.Name == selectedCity);
-                    if (selectedCityObj != null)
-                    {
-                        foreach (var district in selectedCityObj.Districts)
-                        {
-                            <MudSelectItem Value="@district">@district</MudSelectItem>
-                        }
-                    }
-                }
-            </MudSelect>
-
-            <MudSelect T="Pay" @bind-Value="pay" ToStringFunc="@converter" Label="Chọn phương thức thanh toán" Variant="Variant.Outlined" Clearable>
-                <MudSelectItem Value="@(new Pay() { Name="Tiền mặt"})" />
-                <MudSelectItem Value="@(new Pay() { Name="Thanh toán online"})" />
-            </MudSelect>
-
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="PlaceOrder">Đặt hàng</MudButton>
-            <MudSpacer Variant="Variant.Filled" Color="Color.Error">Hủy</MudSpacer>
-        </MudPaper>
-    </MudItem>
-
-    <MudItem xs="12" sm="12" md="6">
-        <!-- Thông tin hóa đơn và sản phẩm -->
+    <MudItem xs="12" sm="12">
         @if (listProductUserBill != null)
         {
-            <MudPaper Class="mud-padding-4" Elevation="4">
-                <div class="mud-typography-h6 mud-text-center" style="font-weight: bold;">Thông Tin Hóa Đơn</div>
-                <MudDivider />
-                <MudText><strong>ID Hóa Đơn:</strong> @listProductUserBill.First().Bills.BillId</MudText>
-                <MudText><strong>Tổng Tiền:</strong> @string.Format(new CultureInfo("vi-VN"), "{0:N0}", listProductUserBill.Where(x => !x.IsDeleted).Sum(x => x.Quantity * x.Price)) vnđ</MudText>
+            <MudGrid>
+                <MudItem xs="12" sm="12" md="12">
+                    <div style="font-weight: bold; font-size: 1.5em;">Hóa Đơn</div>
+                    <div><strong>ID Hóa Đơn:</strong> @listProductUserBill.First().Bills.BillId</div>
+                    <div><strong>Tổng Tiền:</strong> @string.Format(new CultureInfo("vi-VN"), "{0:N0}", listProductUserBill.First().Bills.TotalPrice) vnđ</div>
+                    <div><strong>Số Lượng:</strong> @listProductUserBill.Sum(x => x.Quantity)</div>
+                    <div><strong>Ngày Tạo:</strong> @(listProductUserBill.First().Bills.Created_at?.ToString("HH:mm dd/MM/yyyy") ?? "Không có thông tin")</div>
 
-                <MudText><strong>Số Lượng:</strong> @listProductUserBill.Sum(x => x.Quantity)</MudText>
-                <MudText><strong>Ngày Tạo:</strong> @(listProductUserBill.First().Bills.Created_at?.ToString("HH:mm dd/MM/yyyy") ?? "Không có thông tin")</MudText>
+                    <br />
+                    <MudTable Items="listProductUserBill" Hover="true" Dense="true">
+                        <HeaderContent>
+                            <MudTh>Tên sản phẩm</MudTh>
+                            <MudTh>Số lượng</MudTh>
+                            <MudTh>Giá sản phẩm</MudTh>
+                            <MudTh>Tác vụ</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>@context.Product.ProductName</MudTd>
+                            <MudTd>@context.Quantity</MudTd>
+                            <MudTd>
+                                @Convert.ToDecimal(context.Price).ToString("#,##0") vnđ
+                            </MudTd>
+                            <MudTd>
+                                <MudButton Color="Color.Error" OnClick="@(() => DeleteProduct(context))">Xóa</MudButton>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                    <!-- Địa chỉ giao hàng -->
+                    <MudText Typo="Typo.h6" Class="mud-width-full">Thông tin giao hàng</MudText>
 
-                <MudTable Items="listProductUserBill" Hover="true" Dense="true">
-                    <HeaderContent>
-                        <MudTh>Tên sản phẩm</MudTh>
-                        <MudTh>Số lượng</MudTh>
-                        <MudTh>Giá sản phẩm</MudTh>
-                        <MudTh>Tác vụ</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd>@context.Product.ProductName</MudTd>
-                        <MudTd>@context.Quantity</MudTd>
-                        <MudTd>@Convert.ToDecimal(context.Price).ToString("#,##0") vnđ</MudTd>
-                        <MudTd>
-                            <MudButton Color="Color.Error" OnClick="@(() => DeleteProduct(context))">Xóa</MudButton>
-                        </MudTd>
-                    </RowTemplate>
-                </MudTable>
-            </MudPaper>
+                    <!-- Tên người nhận -->
+                    <MudTextField Label="Tên người nhận" @bind-Value="receiverName" Variant="Variant.Outlined" Required="true" />
+
+                    <!-- Số điện thoại -->
+                    <MudTextField Label="Số điện thoại" @bind-Value="phoneNumber" Variant="Variant.Outlined" Required="true" />
+
+                    <!-- Thành phố -->
+                    <MudSelect T="string" Label="Chọn thành phố" @bind-Value="selectedCity" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Clearable>
+                        @foreach (var city in cities)
+                        {
+                            <MudSelectItem Value="@city.Name">@city.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+
+                    <!-- Quận/Huyện -->
+                    <MudSelect T="string" Label="Chọn quận/huyện" @bind-Value="selectedDistrict" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Clearable>
+                        @if (!string.IsNullOrEmpty(selectedCity))
+                        {
+                            var selectedCityObj = cities.FirstOrDefault(c => c.Name == selectedCity);
+                            if (selectedCityObj != null)
+                            {
+                                foreach (var district in selectedCityObj.Districts)
+                                {
+                                    <MudSelectItem Value="@district">@district</MudSelectItem>
+                                }
+                            }
+                        }
+                    </MudSelect>
+
+                    <br />
+
+                    <!-- Phương thức thanh toán -->
+                    <MudSelect T="Pay" @bind-Value="pay" ToStringFunc="@converter" Label="Chọn phương thức thanh toán" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Clearable>
+                        <MudSelectItem Value="@(new Pay() { Name="Tiền mặt"})" />
+                        <MudSelectItem Value="@(new Pay() { Name="Thanh toán online"})" />
+                    </MudSelect>
+
+                    <br />
+
+                    <!-- Nút đặt hàng -->
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="PlaceOrder">
+                        Đặt hàng
+                    </MudButton>
+                   <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="DeleteOrder">
+    Hủy đơn
+</MudButton>
+
+                </MudItem>
+            </MudGrid>
         }
         else
         {
-            <MudText Color="Color.Error">Hóa đơn không tồn tại.</MudText>
+
         }
     </MudItem>
 </MudGrid>
 
-
-
 @code {
     [Parameter] public int productBillId { get; set; }
-    private Product_bill productBill = new Product_bill();
-    private Bill billUser = new Bill();
-    private List<ProductBillDetailDto> listProductUserBill = new List<ProductBillDetailDto>();
+    private Product_bill productBill;
+    private Bill billUser;
+    private List<ProductBillDetailDto> listProductUserBill;
+    private ProductBillDetailDto productBillDetailDto = new ProductBillDetailDto();
     private ShippingInfoDTO shippingInfoDTO = new ShippingInfoDTO();
 
     // Biến lưu thông tin giao hàng
-    private string? receiverName; // Tên người nhận
-    private string? phoneNumber;  // Số điện thoại
-    private string? selectedCity; // Thành phố
-    private string? selectedDistrict; // Quận/Huyện
+    private string receiverName; // Tên người nhận
+    private string phoneNumber;  // Số điện thoại
+    private string selectedCity; // Thành phố
+    private string selectedDistrict; // Quận/Huyện
     private Pay pay = new Pay { Name = "Tiền mặt" };  // Mặc định là Tiền mặt
 
     // Danh sách thành phố và quận/huyện
     private List<City> cities = new List<City>
- {
-     new City { Name = "Hà Nội", Districts = new List<string> { "Ba Đình", "Hoàn Kiếm", "Tây Hồ", "Long Biên", "Cầu Giấy", "Đống Đa", "Hai Bà Trưng", "Hoàng Mai", "Thanh Xuân", "Hà Đông", "Bắc Từ Liêm", "Nam Từ Liêm", "Sóc Sơn", "Đông Anh", "Gia Lâm", "Thanh Trì", "Mê Linh", "Ứng Hòa", "Thường Tín", "Phú Xuyên", "Thanh Oai", "Hoài Đức", "Đan Phượng", "Quốc Oai", "Chương Mỹ", "Thạch Thất", "Ba Vì", "Phúc Thọ", "Sơn Tây" } },
- new City { Name = "Hồ Chí Minh", Districts = new List<string> { "Quận 1", "Quận 3", "Quận 4", "Quận 5", "Quận 6", "Quận 7", "Quận 8", "Quận 10", "Quận 11", "Quận 12", "Bình Thạnh", "Phú Nhuận", "Tân Bình", "Tân Phú", "Gò Vấp", "Bình Tân", "Thủ Đức", "Bình Chánh", "Cần Giờ", "Củ Chi", "Hóc Môn", "Nhà Bè" } },
- new City { Name = "Đà Nẵng", Districts = new List<string> { "Hải Châu", "Thanh Khê", "Sơn Trà", "Ngũ Hành Sơn", "Liên Chiểu", "Cẩm Lệ", "Hòa Vang", "Hoàng Sa" } },
- new City { Name = "Hải Phòng", Districts = new List<string> { "Hồng Bàng", "Ngô Quyền", "Lê Chân", "Hải An", "Kiến An", "Đồ Sơn", "Dương Kinh", "Thuỷ Nguyên", "An Dương", "An Lão", "Kiến Thuỵ", "Tiên Lãng", "Vĩnh Bảo", "Cát Hải", "Bạch Long Vĩ" } },
- new City { Name = "Cần Thơ", Districts = new List<string> { "Ninh Kiều", "Bình Thuỷ", "Cái Răng", "Ô Môn", "Thốt Nốt", "Vĩnh Thạnh", "Cờ Đỏ", "Phong Điền", "Thới Lai" } },
- new City { Name = "An Giang", Districts = new List<string> { "Long Xuyên", "Châu Đốc", "Tân Châu", "An Phú", "Châu Phú", "Phú Tân", "Thoại Sơn", "Tri Tôn", "Tịnh Biên", "Chợ Mới" } },
- new City { Name = "Bà Rịa - Vũng Tàu", Districts = new List<string> { "Bà Rịa", "Vũng Tàu", "Phú Mỹ", "Châu Đức", "Đất Đỏ", "Long Điền", "Xuyên Mộc", "Côn Đảo" } },
- new City { Name = "Bắc Giang", Districts = new List<string> { "Bắc Giang", "Yên Thế", "Tân Yên", "Lạng Giang", "Lục Nam", "Lục Ngạn", "Sơn Động", "Hiệp Hòa" } },
- new City { Name = "Bắc Kạn", Districts = new List<string> { "Bắc Kạn", "Ba Bể", "Bạch Thông", "Chợ Đồn", "Chợ Mới", "Na Rì", "Ngân Sơn", "Pác Nặm" } },
- new City { Name = "Bạc Liêu", Districts = new List<string> { "Bạc Liêu", "Hồng Dân", "Phước Long", "Vĩnh Lợi", "Giá Rai", "Đông Hải", "Hoà Bình" } },
- new City { Name = "Bắc Ninh", Districts = new List<string> { "Bắc Ninh", "Gia Bình", "Lương Tài", "Quế Võ", "Thuận Thành", "Tiên Du", "Yên Phong", "Từ Sơn" } },
- new City { Name = "Bến Tre", Districts = new List<string> { "Bến Tre", "Ba Tri", "Bình Đại", "Châu Thành", "Chợ Lách", "Giồng Trôm", "Mỏ Cày Bắc", "Mỏ Cày Nam", "Thạnh Phú" } },
- new City { Name = "Bình Dương", Districts = new List<string> { "Thủ Dầu Một", "Dĩ An", "Thuận An", "Tân Uyên", "Bến Cát", "Bàu Bàng", "Bắc Tân Uyên", "Dầu Tiếng", "Phú Giáo" } },
- new City { Name = "Bình Định", Districts = new List<string> { "Quy Nhơn", "An Lão", "Hoài Ân", "Hoài Nhơn", "Phù Cát", "Phù Mỹ", "Tây Sơn", "Tuy Phước", "Vân Canh", "Vĩnh Thạnh" } },
- new City { Name = "Bình Phước", Districts = new List<string> { "Đồng Xoài", "Bình Long", "Phước Long", "Bù Đăng", "Bù Đốp", "Bù Gia Mập", "Chơn Thành", "Đồng Phú", "Hớn Quản", "Lộc Ninh" } },
- new City { Name = "Bình Thuận", Districts = new List<string> { "Phan Thiết", "La Gi", "Bắc Bình", "Đức Linh", "Hàm Tân", "Hàm Thuận Bắc", "Hàm Thuận Nam", "Phú Quý", "Tánh Linh" } },
- new City { Name = "Cà Mau", Districts = new List<string> { "Cà Mau", "Cái Nước", "Đầm Dơi", "Ngọc Hiển", "Năm Căn", "Phú Tân", "Thới Bình", "Trần Văn Thời", "U Minh" } },
- new City { Name = "Cao Bằng", Districts = new List<string> { "Cao Bằng", "Bảo Lạc", "Bảo Lâm", "Hà Quảng", "Hoà An", "Nguyên Bình", "Phục Hoà", "Quảng Uyên", "Thạch An", "Trùng Khánh" } },
- new City { Name = "Đắk Lắk", Districts = new List<string> { "Buôn Ma Thuột", "Buôn Đôn", "Cư Kuin", "Cư M'gar", "Ea H'leo", "Ea Kar", "Ea Súp", "Krông Ana", "Krông Bông", "Krông Buk", "Krông Năng", "Krông Pắc", "Lắk", "M'Đrắk" } },
- new City { Name = "Đắk Nông", Districts = new List<string> { "Gia Nghĩa", "Cư Jút", "Đắk Glong", "Đắk Mil", "Đắk R'lấp", "Đắk Song", "Krông Nô", "Tuy Đức" } },
- new City { Name = "Điện Biên", Districts = new List<string> { "Điện Biên Phủ", "Mường Lay", "Điện Biên", "Điện Biên Đông", "Mường Ảng", "Mường Chà", "Mường Nhé", "Nậm Pồ", "Tủa Chùa", "Tuần Giáo" } },
- new City { Name = "Đồng Nai", Districts = new List<string> { "Biên Hòa", "Long Khánh", "Cẩm Mỹ", "Định Quán", "Long Thành", "Nhơn Trạch", "Tân Phú", "Thống Nhất", "Trảng Bom", "Vĩnh Cửu", "Xuân Lộc" } },
- new City { Name = "Đồng Tháp", Districts = new List<string> { "Cao Lãnh", "Sa Đéc", "Hồng Ngự", "Châu Thành", "Hồng Ngự (huyện)", "Lai Vung", "Lấp Vò", "Tam Nông", "Tân Hồng", "Thanh Bình", "Tháp Mười" } },
- new City { Name = "Gia Lai", Districts = new List<string> { "Pleiku", "An Khê", "Ayun Pa", "Chư Păh", "Chư Prông", "Chư Pưh", "Chư Sê", "Đăk Đoa", "Đăk Pơ", "Ia Grai", "Ia Pa", "KBang", "Kông Chro", "Krông Pa", "Mang Yang", "Phú Thiện" } },
- new City { Name = "Hà Giang", Districts = new List<string> { "Hà Giang", "Bắc Mê", "Bắc Quang", "Đồng Văn", "Hoàng Su Phì", "Mèo Vạc", "Quản Bạ", "Quang Bình", "Vị Xuyên", "Xín Mần", "Yên Minh" } },
- new City { Name = "Hà Nam", Districts = new List<string> { "Phủ Lý", "Bình Lục", "Duy Tiên", "Kim Bảng", "Lý Nhân", "Thanh Liêm" } },
- new City { Name = "Hà Tĩnh", Districts = new List<string> { "Hà Tĩnh", "Hồng Lĩnh", "Kỳ Anh", "Nghi Xuân", "Can Lộc", "Cẩm Xuyên", "Đức Thọ", "Hương Khê", "Hương Sơn", "Lộc Hà", "Thạch Hà", "Vũ Quang" } },
- new City { Name = "Hậu Giang", Districts = new List<string> { "Vị Thanh", "Ngã Bảy", "Long Mỹ", "Châu Thành", "Châu Thành A", "Long Mỹ (huyện)", "Phụng Hiệp", "Vị Thủy" } },
- new City { Name = "Hòa Bình", Districts = new List<string> { "Hòa Bình", "Cao Phong", "Đà Bắc", "Kim Bôi", "Lạc Sơn", "Lạc Thủy", "Lương Sơn", "Mai Châu", "Tân Lạc", "Yên Thủy" } },
- new City { Name = "Hưng Yên", Districts = new List<string> { "Hưng Yên", "Ân Thi", "Khoái Châu", "Kim Động", "Mỹ Hào", "Phù Cừ", "Tiên Lữ", "Văn Giang", "Văn Lâm", "Yên Mỹ" } },
- new City { Name = "Khánh Hòa", Districts = new List<string> { "Nha Trang", "Cam Ranh", "Diên Khánh", "Ninh Hòa", "Vạn Ninh", "Khánh Vĩnh", "Khánh Sơn", "Cam Lâm", "Trường Sa" } },
- new City { Name = "Kiên Giang", Districts = new List<string> { "Rạch Giá", "Hà Tiên", "Phú Quốc", "An Biên", "An Minh", "Châu Thành", "Giang Thành", "Giồng Riềng", "Gò Quao", "Hòn Đất", "Kiên Hải", "Kiên Lương", "Tân Hiệp", "U Minh Thượng", "Vĩnh Thuận" } },
- new City { Name = "Kon Tum", Districts = new List<string> { "Kon Tum", "Đăk Glei", "Đăk Hà", "Đăk Tô", "Ia H'Drai", "Kon Plông", "Kon Rẫy", "Ngọc Hồi", "Sa Thầy", "Tu Mơ Rông" } },
- new City { Name = "Lai Châu", Districts = new List<string> { "Lai Châu", "Phong Thổ", "Sìn Hồ", "Tân Uyên", "Tam Đường", "Than Uyên", "Mường Tè", "Nậm Nhùn" } },
- new City { Name = "Lâm Đồng", Districts = new List<string> { "Đà Lạt", "Bảo Lộc", "Bảo Lâm", "Cát Tiên", "Đạ Huoai", "Đạ Tẻh", "Đam Rông", "Di Linh", "Đơn Dương", "Đức Trọng", "Lạc Dương", "Lâm Hà" } },
- new City { Name = "Lạng Sơn", Districts = new List<string> { "Lạng Sơn", "Bắc Sơn", "Bình Gia", "Cao Lộc", "Chi Lăng", "Đình Lập", "Hữu Lũng", "Lộc Bình", "Tràng Định", "Văn Lãng", "Văn Quan" } },
- new City { Name = "Lào Cai", Districts = new List<string> { "Lào Cai", "Bát Xát", "Bảo Thắng", "Bảo Yên", "Mường Khương", "Sa Pa", "Văn Bàn", "Si Ma Cai" } },
- new City { Name = "Nam Định", Districts = new List<string> { "Nam Định", "Mỹ Lộc", "Nam Trực", "Trực Ninh", "Vụ Bản", "Ý Yên", "Hải Hậu", "Giao Thủy", "Xuân Trường", "Nghĩa Hưng", "Đông Hưng" } },
- new City { Name = "Nghệ An", Districts = new List<string> { "Vinh", "Cửa Lò", "Anh Sơn", "Con Cuông", "Diễn Châu", "Hưng Nguyên", "Kỳ Sơn", "Nghi Lộc", "Nam Đàn", "Quỳ Châu", "Quỳ Hợp", "Quỳnh Lưu", "Tân Kỳ", "Thanh Chương", "Thanh Hà", "Vũ Quang" } },
- new City { Name = "Ninh Bình", Districts = new List<string> { "Ninh Bình", "Tam Điệp", "Gia Viễn", "Hoa Lư", "Kim Sơn", "Nho Quan", "Yên Khánh", "Yên Mô", "Hoa Lư", "Tuy Phương", "Tân Thành" } },
- new City { Name = "Ninh Thuận", Districts = new List<string> { "Phan Rang-Tháp Chàm", "Ninh Phước", "Ninh Hải", "Thuận Bắc", "Thuận Nam", "Bác Ái", "Bình Sơn" } },
- new City { Name = "Phú Thọ", Districts = new List<string> { "Việt Trì", "Phú Thọ", "Cẩm Khê", "Đoan Hùng", "Hạ Hòa", "Lâm Thao", "Nghĩa Đàn", "Thanh Sơn", "Tân Sơn", "Tam Nông" } },
- new City { Name = "Phú Yên", Districts = new List<string> { "Tuy Hòa", "Sông Cầu", "Đồng Xuân", "Phú Hòa", "Tây Hòa", "Sơn Hòa", "Miền Tây", "Vạn Ninh", "Hòa Thành" } },
- new City { Name = "Quảng Bình", Districts = new List<string> { "Đồng Hới", "Ba Đồn", "Quảng Ninh", "Lệ Thủy", "Minh Hóa", "Tuyên Hóa", "Vĩnh Linh", "Kỳ Anh", "Quảng Trạch", "Bố Trạch" } },
- new City { Name = "Quảng Nam", Districts = new List<string> { "Tam Kỳ", "Hội An", "Duy Xuyên", "Điện Bàn", "Phú Ninh", "Thăng Bình", "Quế Sơn", "Hiệp Đức", "Nông Sơn", "Tiên Phước", "Nam Giang", "Phước Sơn", "Tây Giang" } },
- new City { Name = "Quảng Ngãi", Districts = new List<string> { "Quảng Ngãi", "Bình Sơn", "Lý Sơn", "Sơn Tịnh", "Tư Nghĩa", "Trà Bồng", "Minh Long", "Nghĩa Hành", "Mộ Đức", "Ba Tơ" } },
- new City { Name = "Quảng Ninh", Districts = new List<string> { "Hạ Long", "Uông Bí", "Móng Cái", "Cẩm Phả", "Đông Triều", "Ba Chẽ", "Vân Đồn", "Tiên Yên", "Hoành Bồ", "Quảng Yên" } },
- new City { Name = "Quảng Trị", Districts = new List<string> { "Quảng Trị", "Đông Hà", "Gio Linh", "Cam Lộ", "Vĩnh Linh", "Hướng Hóa", "Triệu Phong", "Vĩnh Linh", "Hải Lăng", "Đakrong", "Khe Sanh" } },
- new City { Name = "Sóc Trăng", Districts = new List<string> { "Sóc Trăng", "Châu Thành", "Kế Sách", "Long Phú", "Mỹ Tú", "Mỹ Xuyên", "Thạnh Trị", "Vĩnh Châu", "Ngọc Hiển" } },
- new City { Name = "Sơn La", Districts = new List<string> { "Sơn La", "Mường La", "Mai Sơn", "Quỳnh Nhai", "Phù Yên", "Yên Châu", "Sông Mã", "Vân Hồ", "Mộc Châu" } },
- new City { Name = "Tây Ninh", Districts = new List<string> { "Tây Ninh", "Bến Cầu", "Châu Thành", "Dương Minh Châu", "Gò Dầu", "Hòa Thành", "Tân Biên", "Tân Châu", "Trảng Bàng" } },
- new City { Name = "Thái Bình", Districts = new List<string> { "Thái Bình", "Quỳnh Phụ", "Hưng Hà", "Vũ Thư", "Đông Hưng", "Tiền Hải", "Thái Thụy", "Vũ Quý", "Quỳnh Côi" } },
- new City { Name = "Thái Nguyên", Districts = new List<string> { "Thái Nguyên", "Phổ Yên", "Sông Công", "Đại Từ", "Đồng Hỷ", "Võ Nhai", "Phú Lương", "Võ Nhai", "Phú Bình" } },
- new City { Name = "Thanh Hóa", Districts = new List<string> { "Thanh Hóa", "Sầm Sơn", "Bỉm Sơn", "Thọ Xuân", "Thọ Lộc", "Tĩnh Gia", "Quảng Xương", "Triệu Sơn", "Nông Cống", "Vĩnh Lộc", "Hà Trung", "Mường Lát", "Lang Chánh" } },
- new City { Name = "Thừa Thiên-Huế", Districts = new List<string> { "Huế", "Hương Thủy", "Hương Trà", "Phong Điền", "Quảng Điền", "A Lưới", "Phú Lộc", "Phú Vang" } },
- new City { Name = "Tiền Giang", Districts = new List<string> { "Mỹ Tho", "Gò Công", "Cai Lậy", "Châu Thành", "Chợ Gạo", "Tân Phú Đông", "Tân Hiệp", "Cái Bè", "Tân Phú", "Chợ Lách", "Bến Tre", "Thạnh Phú" } },
- new City { Name = "Trà Vinh", Districts = new List<string> { "Trà Vinh", "Cầu Kè", "Cầu Ngang", "Châu Thành", "Tiểu Cần", "Duyên Hải", "Cầu Ngang", "Trà Cú" } }
- };
-
+    {
+        new City { Name = "Hà Nội", Districts = new List<string> { "Ba Đình", "Hoàn Kiếm", "Tây Hồ" } },
+        new City { Name = "Hồ Chí Minh", Districts = new List<string> { "Quận 1", "Quận 2", "Quận 3" } }
+    };
 
     // Hàm converter cho MudSelect
     Func<Pay, string> converter = p => p?.Name;
@@ -178,7 +135,7 @@
         }
         catch (Exception ex)
         {
-           await DialogService.ShowMessageBox("Lỗi", $"Không thể tải hóa đơn: {ex.Message}");
+            DialogService.ShowMessageBox("Lỗi", $"Không thể tải hóa đơn: {ex.Message}");
         }
     }
 
@@ -209,12 +166,12 @@
 
 
             var (paymentResult, code, message) = await BillService.ConfirmOrder(listProductUserBill.First().Bills, pay.Name, shippingInfoDTO);
-            if(code == 400)
+            if (code == 400)
             {
                 await DialogService.ShowMessageBox("Lỗi", $"{message}");
                 return;
             }
-            else if(code == 202)
+            else if (code == 202)
             {
                 navigationManager.NavigateTo($"{message}");
 
@@ -224,33 +181,122 @@
                 await DialogService.ShowMessageBox("Thành công", $"{message}");
                 navigationManager.NavigateTo("/?message=" + Uri.EscapeDataString("Đơn hàng đã được đặt thành công."));
             }
-          
+
+
+            // Gọi phương thức xử lý thanh toán
+            // var paymentResult = await CartService.ProcessPayment(productBill.ProductBillId, pay.Name);
+
+            // if (paymentResult.IsSuccess)
+            // {
+            // Lưu thông tin địa chỉ giao hàng
+            // var address = new Address
+            //     {
+            //         UserId = productBill.UserId,  Giả sử bạn đã có UserId từ ProductBill
+            //         Name = receiverName,
+            //         Phone = phoneNumber,
+            //         DetailAddress = $"{selectedDistrict}, {selectedCity}",
+            //         CreatedAt = DateTime.Now,
+            //         UpdatedAt = DateTime.Now
+            //     };
+
+            // Lưu địa chỉ vào cơ sở dữ liệu
+            // await CartService.SaveAddress(address);
+
+            // Cập nhật hóa đơn vào cơ sở dữ liệu
+            // var bill = new Bill
+            //     {
+            //         AddressId = address.AddressId,  Giả sử bạn đã có AddressId
+            //         DeliveryId = productBill.ProductBillId,  Đây là ID của hóa đơn
+            //         PayStatus = 1, 1 có thể là đã thanh toán
+            //         TotalPrice = (int)productBill.Price, Tổng tiền của hóa đơn
+            //         Note = "Đơn hàng đã được đặt",  Thêm ghi chú nếu cần
+            //         Created_at = DateTime.Now,
+            //         Updated_at = DateTime.Now,
+            //         Status = 1  Trạng thái của hóa đơn, ví dụ: 1 là đã xử lý
+            //     };
+
+            // Cập nhật Bill vào cơ sở dữ liệu
+            // await CartService.UpdateBillAsync(bill);
+
+            // Hiển thị thông báo và chuyển hướng
+            // await DialogService.ShowMessageBox("Thành Công", "Đơn hàng đã được đặt thành công.");
+            // }
+            // else
+            // {
+            //     await DialogService.ShowMessageBox("Lỗi", paymentResult.Message);
+            // }
         }
         catch (Exception ex)
         {
             await DialogService.ShowMessageBox("Lỗi", $"Đã xảy ra lỗi: {ex.Message}");
         }
     }
-    private async Task DeleteOrder(){
 
-    }
-    private void DeleteProduct(ProductBillDetailDto product)
+    private async void DeleteProduct(ProductBillDetailDto product)
     {
+        try
+        {
+            // Lấy thông tin hóa đơn từ product
+            var bill = product.Bills;
 
-        listProductUserBill.Remove(product);
+            // Xóa sản phẩm cụ thể trong hóa đơn
+            await BillService.DeleteProductFromBill(bill.BillId, product.Product.ProductId);
+            listProductUserBill.Remove(product);
+            StateHasChanged();
+            // Hiển thị thông báo hoặc chuyển hướng
+            await DialogService.ShowMessageBox("Thành công", "Sản phẩm đã được xóa khỏi đơn hàng.");
+        }
+        catch (Exception ex)
+        {
+            // Xử lý lỗi
+            await DialogService.ShowMessageBox("Lỗi", $"Đã xảy ra lỗi khi xóa sản phẩm: {ex.Message}");
+        }
     }
+    private async void DeleteOrder()
+    {
+        try
+        {
+            // Lấy thông tin hóa đơn từ danh sách sản phẩm
+            var bill = listProductUserBill.FirstOrDefault()?.Bills; // Giả sử đơn hàng có ít nhất một sản phẩm
+
+            if (bill == null)
+            {
+                await DialogService.ShowMessageBox("Lỗi", "Không tìm thấy hóa đơn để xóa.");
+                return;
+            }
+
+            // Xóa tất cả các sản phẩm trong hóa đơn
+            var productsInBill = await BillService.GetProductsByBillId(productBillId);
+            foreach (var p in productsInBill)
+            {
+                await BillService.DeleteProductFromBill(productBillId, productBill.ProductId); // Chú ý ở đây là ProductId của mỗi sản phẩm trong hóa đơn
+            }
+
+            // Sau khi xóa tất cả các sản phẩm, xóa hóa đơn
+            await BillService.Deletebill(bill);
+
+            // Sau khi xóa thành công, chuyển hướng về trang chính hoặc thông báo thành công
+            navigationManager.NavigateTo("/?message=" + Uri.EscapeDataString("Đơn hàng đã bị hủy."));
+        }
+        catch (Exception ex)
+        {
+            // Xử lý lỗi nếu có
+            await DialogService.ShowMessageBox("Lỗi", $"Đã xảy ra lỗi khi xóa đơn hàng: {ex.Message}");
+        }
+    }
+
 
     // Lớp để lưu thông tin thành phố và quận/huyện
     private class City
     {
-        public string? Name { get; set; }
+        public string Name { get; set; }
         public List<string> Districts { get; set; }
     }
 
     // Lớp để lưu thông tin phương thức thanh toán
     public class Pay
     {
-        public string? Name { get; set; }
+        public string Name { get; set; }
 
         public override bool Equals(object o)
         {

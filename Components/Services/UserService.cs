@@ -23,10 +23,9 @@ namespace BanSach.Components.Services
         
         public async Task<List<User>> GetAllUser()
         {
-            return await db.Users.Where(u => u.RoleId == 2).ToListAsync();
+            return await db.Users.ToListAsync();
         }
-
-        
+       
         public async Task<User> CreateUser(User user, string password)
         {
             if (await UserExists(user.Email))

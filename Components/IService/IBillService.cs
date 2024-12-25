@@ -6,18 +6,13 @@ namespace BanSach.Components.IService
     public interface IBillService
     {
         Task<List<Product_bill>> GetAllProduct_bill();
-        Task DeleteProduct_bill(Product_bill Product_bill);
+        Task DeleteProductFromBill(int billId, int productId);
         Task EditProduct_bill(Product_bill Product_bill);
-
+        Task Deletebill(Bill bill);
         Task<List<Bill>> GetAllbill();
         Task<(decimal doanhThu, int doanhSo, int soDon)> GetDoanhThuThangHienTai(DateTime currentDate);
-
-        Task Deletbill(Bill bill);
-        Task Editbill(Bill bill);
         Task<Delivery?> GetDeById(int DeId);
         Task<List<Delivery>> GetAllDelivery();
-
-
         Task<bool> CompleteProductBillAsync(BillVanDonDTO bill);
         Task<List<DoanhThuViewModel>> GetAllBillDoanhThu(DateTime? fromDate, DateTime? toDate);
         Task<PagedResult<BillVanDonDTO>> GetBillDetailsAsync(int page, int pageSize);
@@ -35,5 +30,8 @@ namespace BanSach.Components.IService
 
         Task<List<ProductBillDetailDto>> GetProductsByBill();
         Task<TopProductViewModel> GetTotalQuantityP(int productId);
+        
+    //    Task<(decimal doanhThu, int doanhSo, int soDon)> GetDoanhThuTheoTrangThai(DateTime currentDate, string? orderStatus = null);
+    
     }
 }

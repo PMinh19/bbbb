@@ -23,35 +23,40 @@ namespace BanSach.Components.Services
         {
             return await db.Product_bills.ToListAsync();
         }
-        public async Task DeleteProduct_bill(Product_bill Product_bill)
-        {
-            db.Product_bills.Remove(Product_bill);
-            await db.SaveChangesAsync();
-        }
+       public async Task DeleteProductFromBill(int billId, int productId)
+{
+    // Tìm sản phẩm trong hóa đơn bằng BillId và ProductId
+    var productBill = await db.Product_bills
+                               .FirstOrDefaultAsync(pb => pb.BillId == billId && pb.ProductId == productId);
+    
+    // Nếu tìm thấy sản phẩm, xóa nó
+    if (productBill != null)
+    {
+        db.Product_bills.Remove(productBill);
+        await db.SaveChangesAsync();
+    }
+    else
+    {
+        // Nếu không tìm thấy sản phẩm, có thể thông báo lỗi hoặc làm gì đó
+        // Ví dụ: throw new Exception("Sản phẩm không có trong hóa đơn.");
+    }
+}
+
 
         public async Task EditProduct_bill(Product_bill Product_bill)
         {
             db.Product_bills.Update(Product_bill);
             await db.SaveChangesAsync();
         }
-
-
-
-
-        public async Task<List<Bill>> GetAllbill()
-        {
-            return await db.Bill.ToListAsync();
-        }
-        public async Task Deletbill(Bill bill)
+        public async Task Deletebill(Bill bill)
         {
             db.Bill.Remove(bill);
             await db.SaveChangesAsync();
         }
 
-        public async Task Editbill(Bill bill)
+        public async Task<List<Bill>> GetAllbill()
         {
-            db.Bill.Update(bill);
-            await db.SaveChangesAsync();
+            return await db.Bill.ToListAsync();
         }
         public async Task<List<Delivery>> GetAllDelivery()
         {
@@ -126,6 +131,41 @@ namespace BanSach.Components.Services
 
             return topProducts;
         }
+        //public async Task<(decimal doanhThu, int doanhSo, int soDon)> GetDoanhThuTheoTrangThai(DateTime currentDate, string? orderStatus = null)
+        //{
+        //    // Xác định ngày đầu và ngày cuối của tháng hiện tại
+        //    var startOfMonth = new DateTime(currentDate.Year, currentDate.Month, 1);
+        //    var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
+
+        //    var query = from b in db.Bill
+        //                join pb in db.Product_bills on b.BillId equals pb.BillId
+        //                where b.Created_at >= startOfMonth
+        //                      && b.Created_at <= endOfMonth
+        //                      && b.ApproveBill == true
+        //                select new
+        //                {
+        //                    TotalPrice = b.TotalPrice,
+        //                    Quantity = pb.Quantity,
+        //                    BillId = b.BillId,
+        //                    Status = b.Status // Bao gồm Status trong kiểu ẩn danh
+        //                };
+
+        //    // Thêm điều kiện lọc trạng thái nếu có
+        //    if (!string.IsNullOrEmpty(orderStatus))
+        //    {
+        //        query = query.Where(b => b.Status == orderStatus);
+        //    }
+
+        //    var bills = await query.ToListAsync();
+
+        //    // Tính tổng doanh thu, doanh số và số đơn hàng
+        //    decimal doanhThu = bills.Sum(b => b.TotalPrice);
+        //    int doanhSo = bills.Sum(b => b.Quantity);
+        //    int soDon = bills.Select(b => b.BillId).Distinct().Count();
+
+        //    return (doanhThu, doanhSo, soDon);
+        //}
+
         public async Task<(decimal doanhThu, int doanhSo, int soDon)> GetDoanhThuThangHienTai(DateTime currentDate)
         {
             // Xác định ngày đầu và ngày cuối của tháng hiện tại
@@ -152,7 +192,7 @@ namespace BanSach.Components.Services
 
             return (doanhThu, doanhSo, soDon);
         }
-
+        
 
         public async Task<PagedResult<BillVanDonDTO>> GetBillDetailsAsync(int page, int pageSize)
         {
@@ -178,10 +218,10 @@ namespace BanSach.Components.Services
             var totalCount = await query.CountAsync();
 
             var items = await query
-                .Skip(page * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
+         .OrderByDescending(b => b.Created_at) 
+         .Skip(page * pageSize)
+         .Take(pageSize)
+         .ToListAsync();
             return new PagedResult<BillVanDonDTO>
             {
                 Items = items,
@@ -262,7 +302,7 @@ namespace BanSach.Components.Services
                                       Price = pb.Price,
                                       Bills = bill,
                                       Product = p,
-                                  }).ToListAsync();
+                                  }).OrderByDescending(p => p.ProductBillId).ToListAsync();
 
             return products;
         }

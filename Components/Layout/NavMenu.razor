@@ -1,16 +1,16 @@
-﻿
-@inject CustomAuthStateProvider AuthStateProvider
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-    </div>
-</div>
-
+﻿@inject CustomAuthStateProvider AuthStateProvider
 <AuthorizeView>
     <Authorized>
         @if (userRoleId != "2")
         {
             if (userRoleId == "3")
             {
+        ﻿<div class="top-row ps-3 navbar navbar-dark">
+                    <div class="container-fluid">
+                    </div>
+                </div>
+
+
                 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
                     <nav class="flex-column">
                         <div class="nav-item px-3">
@@ -76,7 +76,7 @@
             }
         }
     </Authorized>
-   
+
 </AuthorizeView>
 
 @code {

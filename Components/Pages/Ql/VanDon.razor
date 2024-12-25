@@ -266,7 +266,7 @@
                 {
                     pagedItems.Remove(deletedBill);
                 }
-
+                await LoadDeliveryList();
                 StateHasChanged();
             }
             else
@@ -296,7 +296,7 @@
                     updatedBill.ApproveBill = true;
                    
                 }
-
+                await LoadDeliveryList();
                 StateHasChanged();
             }
             else

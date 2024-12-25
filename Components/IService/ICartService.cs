@@ -20,7 +20,7 @@ namespace BanSach.Components.IService
         Task<bool> UpdateBillAsync(Bill bill);
         Task<(Bill, int code, string message)> CreateBillMain(List<Product_cart> cart);
         Task<(Bill, int code, string message)> CreateBillNow(Product product, int userID, int quantity);
-
+        Task DeleteItem(Bill bill);
     }
 
     public class PaymentResult

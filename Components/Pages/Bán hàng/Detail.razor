@@ -59,9 +59,9 @@
                             <div style="text-decoration:line-through; font-size: 13px;">
                                 @string.Format(new CultureInfo("vi-VN"), "{0:N0}", product.SellPrice) vnđ
                             </div>
-                            <div style="font-style:italic; color: red">Giảm giá: @discount.Rate%</div>
+                            <div style="font-style:italic; color: #e74c3c">Giảm giá: @discount.Rate%</div>
                             <!-- Hiển thị giá sau giảm giá (màu đỏ) -->
-                            <div style="color: red">
+                            <div style="color: #e74c3c">
                                 <strong> @string.Format(new CultureInfo("vi-VN"), "{0:N0}", discount.SellPrice) vnđ</strong>
                             </div>
                         }
@@ -132,7 +132,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        discounts = await DiscountService.GetAllItem();
+       
         productViewModel = await BillService.GetTotalQuantityP(productId);
         if (productId > 0 && isInitialized)
         {
@@ -165,6 +165,7 @@
             }
 
         }
+        discounts = await DiscountService.GetAllItem();
     }
     public async Task<Product> GetProduct()
     {
@@ -273,6 +274,7 @@
         if (userIdClaim == null)
         {
             await DialogService.ShowMessageBox("Lỗi", "Không thể xác định người dùng.");
+
             return;
         }
         if (quantity <= 0)

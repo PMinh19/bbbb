@@ -358,6 +358,10 @@ namespace BanSach.Components.Services
 
 
         }
-
+        public async Task DeleteItem(Bill bill)
+        {
+            db.Bill.Remove(bill);
+            await db.SaveChangesAsync();
+        }
     }
 }

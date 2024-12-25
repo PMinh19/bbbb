@@ -21,8 +21,6 @@
         display: flex;
         align-items: center;
         padding: 15px;
-        border-bottom: 1px solid #ddd;
-        background-color: #fff;
         border-radius: 6px;
         margin-bottom: 10px;
         justify-content: space-between; /* Đảm bảo tất cả các phần tử đều được căn đều */
@@ -46,14 +44,13 @@
     .cart-item-name {
         font-weight: bold;
         font-size: 14px;
-        color: #333;
+
         margin-bottom: 5px;
     }
 
     .cart-item-price {
         font-size: 14px;
         font-weight: bold;
-        color: #e74c3c;
         margin-bottom: 5px;
     }
 
@@ -67,7 +64,6 @@
     .mud-numeric-field {
         padding: 5px 10px;
         font-size: 12px; /* Giảm kích thước chữ */
-        border: 1px solid #ccc;
         border-radius: 4px;
         width: 50px; /* Kích thước nhỏ cho nút điều chỉnh số lượng */
         height: 30px; /* Chiều cao nhỏ hơn */
@@ -145,7 +141,7 @@
                             <div style="text-decoration:line-through; font-size: 13px;">
                                 @string.Format(new CultureInfo("vi-VN"), "{0:N0}", cartItem.Product.SellPrice) vnđ
                             </div>
-                            <div style="color: red">
+                            <div style="color:#e74c3c">
                                 @string.Format(new CultureInfo("vi-VN"), "{0:N0}", discount.SellPrice) vnđ
                             </div>
                         }
@@ -161,7 +157,7 @@
 
                     <MudItem xs="2" sm="2" md="2" Class="cart-item-quantity">
 
-                        <MudNumericField T="int" @bind-Value="cartItem.Quantity" Min="1" />
+                        <MudNumericField Style="width: 50px; text-align: center; " T="int" @bind-Value="cartItem.Quantity" Min="1" />
                     </MudItem>
 
                     <MudItem xs="2" sm="2" md="2" Class="cart-item-actions">
@@ -179,7 +175,7 @@
         }
         else
         {
-            <MudText Class="cart-empty-message">Giỏ hàng trống.</MudText>
+            
         }
     </MudItem>
 </MudGrid>
