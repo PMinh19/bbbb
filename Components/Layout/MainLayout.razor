@@ -52,30 +52,43 @@
             <!-- Bắt đầu phần AppBar từ Home.razor -->
             @*   <MudTextField T="string" Icon="@Icons.Material.Filled.Search" Placeholder="Tìm kiếm..."
             Style=" margin: 0 10px;" /> *@
+            @if (IsHomePage)
+            {
+                <div class="container-search">
+                    <MudTextField T="string"
+                                  Icon="@Icons.Material.Filled.Search"
+                                  Placeholder="Tìm kiếm..."
+                                  Text="@searchQuery"
+                                  TextChanged="this.SetValueAsync"
+                                  Style="margin: 0 10px;" Immediate="true" />
 
-            <div class="container-search">
-                <MudTextField T="string"
-                              Icon="@Icons.Material.Filled.Search"
-                              Placeholder="Tìm kiếm..."
-                              Text="@searchQuery"
-                              TextChanged="this.SetValueAsync"
-                              Style="margin: 0 10px;" Immediate="true" />
-                @if (!string.IsNullOrWhiteSpace(searchQuery) && FilteredProducts.Any())
-                {
-                    <div class="search-results">
-                        <MudList T="Product">
-                            @foreach (var product in FilteredProducts)
-                            {
-                                <MudListItem T="Product">
-                                    <MudNavLink OnClick="() => NavigateToDetail(product.ProductId)">
-                                        @product.ProductName
-                                    </MudNavLink>
-                                </MudListItem>
-                            }
-                        </MudList>
-                    </div>
-                }
-            </div>
+                    @if (!string.IsNullOrWhiteSpace(searchQuery) && FilteredProducts.Any())
+                    {
+                        <div class="search-results">
+                            <MudList T="Product">
+                                @foreach (var product in FilteredProducts)
+                                {
+                                    <MudListItem T="Product">
+                                        <MudNavLink OnClick="() => NavigateToDetail(product.ProductId)">
+                                            @product.ProductName
+                                        </MudNavLink>
+                                    </MudListItem>
+                                }
+                            </MudList>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(searchQuery))
+                    {
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Style="margin-top: 10px;">
+                            Tìm kiếm
+                        </MudButton>
+                    }
+                </div>
+
+            }
+
 
 
             <MudSpacer />
@@ -92,9 +105,9 @@
                 <Authorized>
                     <MudMenu Icon="@Icons.Material.Filled.AccountCircle"
                              AriaLabel="Open user menu">
-                       
+
                         <MudMenuItem @onclick="NavigateToProfile">Hồ sơ</MudMenuItem>
-                         <MudMenuItem @onclick="NavigateToDonhang">Đơn hàng</MudMenuItem>
+                        <MudMenuItem @onclick="NavigateToDonhang">Đơn hàng</MudMenuItem>
                         <MudMenuItem @onclick="Logout">Đăng xuất</MudMenuItem>
                     </MudMenu>
                 </Authorized>
@@ -131,11 +144,23 @@
 <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
 
 @code {
+    private bool IsHomePage => NavigationManager.ToBaseRelativePath(NavigationManager.Uri) == "";
+
+
     private bool _drawerOpen = true;
     private bool _isDarkMode = true;
     private MudTheme? _theme = null;
     private string? _value;
     private string? _result;
+
+    private void NavigateToSearchPage()
+    {
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            NavigationManager.NavigateTo($"/SearchProduct?query={searchQuery}");
+        }
+    }
+
     private void NavigateToProfile()
     {
 
@@ -196,8 +221,8 @@
     }
     private void NavigateToDetail(int productId)
     {
-        searchQuery = string.Empty;       
-        FilteredProducts.Clear();        
+        searchQuery = string.Empty;
+        FilteredProducts.Clear();
         NavigationManager.NavigateTo($"/Detail/{productId}");
         StateHasChanged();
     }
@@ -234,12 +259,14 @@
     private readonly PaletteLight _lightPalette = new()
         {
             Black = "#110e2d",
-            AppbarText = "#424242",
-            AppbarBackground = "rgba(255,255,255,0.8)",
-            DrawerBackground = "#ffffff",
+            AppbarText = "#ffffff",
+            AppbarBackground = "#e74c3c",
+            DrawerBackground = "#e74c3c",
+            DrawerText = "#ffffff",
             GrayLight = "#e8e8e8",
             GrayLighter = "#f9f9f9",
         };
+
 
     private readonly PaletteDark _darkPalette = new()
         {
@@ -248,14 +275,14 @@
             Background = "#1a1a27",
             BackgroundGray = "#151521",
             AppbarText = "#92929f",
-            AppbarBackground = "rgba(26,26,39,0.8)",
+            AppbarBackground = "#1a1a27", // Bỏ rgba(26,26,39,0.8) và thay bằng màu tối
             DrawerBackground = "#1a1a27",
             ActionDefault = "#74718e",
-            ActionDisabled = "#9999994d",
-            ActionDisabledBackground = "#605f6d4d",
+            ActionDisabled = "#74718e80", // Thay thế màu trắng trong suốt (#9999994d)
+            ActionDisabledBackground = "#74718e33", // Thay thế màu trắng trong suốt (#605f6d4d)
             TextPrimary = "#b2b0bf",
             TextSecondary = "#92929f",
-            TextDisabled = "#ffffff33",
+            TextDisabled = "#74718e33", // Thay thế màu trắng trong suốt (#ffffff33)
             DrawerIcon = "#92929f",
             DrawerText = "#92929f",
             GrayLight = "#2a2833",
@@ -267,7 +294,7 @@
             LinesDefault = "#33323e",
             TableLines = "#33323e",
             Divider = "#292838",
-            OverlayLight = "#1e1e2d80",
+            OverlayLight = "#1e1e2dbf", // Giữ overlay nhưng giảm độ trong suốt (từ #1e1e2d80)
         };
 
     public string DarkLightModeButtonIcon => _isDarkMode switch

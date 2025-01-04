@@ -1,5 +1,6 @@
 ﻿@page "/register"
 @inject IAuthService AuthService
+@inject NavigationManager NavigationManager
 @using BanSach.Components.Model
 <body>
     <div class="form-container">
@@ -26,6 +27,11 @@
                             <label for="email">Email</label>
                             <InputText id="email" @bind-Value="user.Email" class="input-field" type="email" />
                             <ValidationMessage For="(() => user.Email)" />
+                        </div>
+                        <div class="input-box">
+                            <label for="name">Tên đăng nhập</label>
+                            <InputText id="email" @bind-Value="user.UserName" class="input-field" type="input" />
+                            <ValidationMessage For="(() => user.UserName)" />
                         </div>
                         <div class="input-box">
                             <label for="password">Mật khẩu</label>
@@ -235,6 +241,7 @@
         if (result.Success)
         {
             messageCssClass = "text-success";
+            NavigationManager.NavigateTo("/login", true); // Reload trang
         }
         else
         {

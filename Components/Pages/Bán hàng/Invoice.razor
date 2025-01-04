@@ -102,17 +102,17 @@
 
 @code {
     [Parameter] public int productBillId { get; set; }
-    private Product_bill productBill;
-    private Bill billUser;
-    private List<ProductBillDetailDto> listProductUserBill;
+    private Product_bill productBill = new Product_bill();
+    private Bill billUser = new Bill();
+    private List<ProductBillDetailDto> listProductUserBill = new List<ProductBillDetailDto>();
     private ProductBillDetailDto productBillDetailDto = new ProductBillDetailDto();
     private ShippingInfoDTO shippingInfoDTO = new ShippingInfoDTO();
 
     // Biến lưu thông tin giao hàng
-    private string receiverName; // Tên người nhận
-    private string phoneNumber;  // Số điện thoại
-    private string selectedCity; // Thành phố
-    private string selectedDistrict; // Quận/Huyện
+    private string? receiverName; // Tên người nhận
+    private string? phoneNumber;  // Số điện thoại
+    private string? selectedCity; // Thành phố
+    private string? selectedDistrict; // Quận/Huyện
     private Pay pay = new Pay { Name = "Tiền mặt" };  // Mặc định là Tiền mặt
 
     // Danh sách thành phố và quận/huyện
@@ -135,7 +135,7 @@
         }
         catch (Exception ex)
         {
-            DialogService.ShowMessageBox("Lỗi", $"Không thể tải hóa đơn: {ex.Message}");
+           await DialogService.ShowMessageBox("Lỗi", $"Không thể tải hóa đơn: {ex.Message}");
         }
     }
 
@@ -182,49 +182,6 @@
                 navigationManager.NavigateTo("/?message=" + Uri.EscapeDataString("Đơn hàng đã được đặt thành công."));
             }
 
-
-            // Gọi phương thức xử lý thanh toán
-            // var paymentResult = await CartService.ProcessPayment(productBill.ProductBillId, pay.Name);
-
-            // if (paymentResult.IsSuccess)
-            // {
-            // Lưu thông tin địa chỉ giao hàng
-            // var address = new Address
-            //     {
-            //         UserId = productBill.UserId,  Giả sử bạn đã có UserId từ ProductBill
-            //         Name = receiverName,
-            //         Phone = phoneNumber,
-            //         DetailAddress = $"{selectedDistrict}, {selectedCity}",
-            //         CreatedAt = DateTime.Now,
-            //         UpdatedAt = DateTime.Now
-            //     };
-
-            // Lưu địa chỉ vào cơ sở dữ liệu
-            // await CartService.SaveAddress(address);
-
-            // Cập nhật hóa đơn vào cơ sở dữ liệu
-            // var bill = new Bill
-            //     {
-            //         AddressId = address.AddressId,  Giả sử bạn đã có AddressId
-            //         DeliveryId = productBill.ProductBillId,  Đây là ID của hóa đơn
-            //         PayStatus = 1, 1 có thể là đã thanh toán
-            //         TotalPrice = (int)productBill.Price, Tổng tiền của hóa đơn
-            //         Note = "Đơn hàng đã được đặt",  Thêm ghi chú nếu cần
-            //         Created_at = DateTime.Now,
-            //         Updated_at = DateTime.Now,
-            //         Status = 1  Trạng thái của hóa đơn, ví dụ: 1 là đã xử lý
-            //     };
-
-            // Cập nhật Bill vào cơ sở dữ liệu
-            // await CartService.UpdateBillAsync(bill);
-
-            // Hiển thị thông báo và chuyển hướng
-            // await DialogService.ShowMessageBox("Thành Công", "Đơn hàng đã được đặt thành công.");
-            // }
-            // else
-            // {
-            //     await DialogService.ShowMessageBox("Lỗi", paymentResult.Message);
-            // }
         }
         catch (Exception ex)
         {
@@ -257,26 +214,14 @@
         try
         {
             // Lấy thông tin hóa đơn từ danh sách sản phẩm
-            var bill = listProductUserBill.FirstOrDefault()?.Bills; // Giả sử đơn hàng có ít nhất một sản phẩm
+            await BillService.DeleteAllProductsFromBill(billUser.BillId);
 
-            if (bill == null)
-            {
-                await DialogService.ShowMessageBox("Lỗi", "Không tìm thấy hóa đơn để xóa.");
-                return;
-            }
+            // Cập nhật danh sách sản phẩm trong giao diện (giả sử listProductUserBill chứa các sản phẩm trong hóa đơn này)
+            listProductUserBill.RemoveAll(p => p.Bills.BillId == billUser.BillId);
+            StateHasChanged();
 
-            // Xóa tất cả các sản phẩm trong hóa đơn
-            var productsInBill = await BillService.GetProductsByBillId(productBillId);
-            foreach (var p in productsInBill)
-            {
-                await BillService.DeleteProductFromBill(productBillId, productBill.ProductId); // Chú ý ở đây là ProductId của mỗi sản phẩm trong hóa đơn
-            }
-
-            // Sau khi xóa tất cả các sản phẩm, xóa hóa đơn
-            await BillService.Deletebill(bill);
-
-            // Sau khi xóa thành công, chuyển hướng về trang chính hoặc thông báo thành công
-            navigationManager.NavigateTo("/?message=" + Uri.EscapeDataString("Đơn hàng đã bị hủy."));
+            // Hiển thị thông báo thành công
+            await DialogService.ShowMessageBox("Thành công", "Tất cả sản phẩm đã được xóa khỏi đơn hàng.");
         }
         catch (Exception ex)
         {
@@ -289,14 +234,14 @@
     // Lớp để lưu thông tin thành phố và quận/huyện
     private class City
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public List<string> Districts { get; set; }
     }
 
     // Lớp để lưu thông tin phương thức thanh toán
     public class Pay
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public override bool Equals(object o)
         {

@@ -7,6 +7,7 @@ namespace BanSach.Components.IService
     {
         Task<List<Product_bill>> GetAllProduct_bill();
         Task DeleteProductFromBill(int billId, int productId);
+        Task DeleteAllProductsFromBill(int billId);
         Task EditProduct_bill(Product_bill Product_bill);
         Task Deletebill(Bill bill);
         Task<List<Bill>> GetAllbill();

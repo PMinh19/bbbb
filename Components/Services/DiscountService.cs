@@ -14,7 +14,7 @@ namespace BanSach.Components.Services
         }
         public async Task<List<Discount>> GetAllItem()
         {
-            return await db.Discount.ToListAsync();
+            return await db.Discount.OrderByDescending(i=>i.DiscountId).ToListAsync();
         }
         public async Task<List<Discount>> GetAllDiscountsTodayAsync()
         {

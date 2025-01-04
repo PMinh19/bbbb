@@ -23,24 +23,44 @@ namespace BanSach.Components.Services
         {
             return await db.Product_bills.ToListAsync();
         }
-       public async Task DeleteProductFromBill(int billId, int productId)
-{
-    // Tìm sản phẩm trong hóa đơn bằng BillId và ProductId
-    var productBill = await db.Product_bills
-                               .FirstOrDefaultAsync(pb => pb.BillId == billId && pb.ProductId == productId);
-    
-    // Nếu tìm thấy sản phẩm, xóa nó
-    if (productBill != null)
-    {
-        db.Product_bills.Remove(productBill);
-        await db.SaveChangesAsync();
-    }
-    else
-    {
-        // Nếu không tìm thấy sản phẩm, có thể thông báo lỗi hoặc làm gì đó
-        // Ví dụ: throw new Exception("Sản phẩm không có trong hóa đơn.");
-    }
-}
+        public async Task DeleteProductFromBill(int billId, int productId)
+        {
+            // Tìm sản phẩm trong hóa đơn bằng BillId và ProductId
+            var productBill = await db.Product_bills
+                                       .FirstOrDefaultAsync(pb => pb.BillId == billId && pb.ProductId == productId);
+
+            // Nếu tìm thấy sản phẩm, xóa nó
+            if (productBill != null)
+            {
+                db.Product_bills.Remove(productBill);
+                await db.SaveChangesAsync();
+            }
+            else
+            {
+                // Nếu không tìm thấy sản phẩm, có thể thông báo lỗi hoặc làm gì đó
+                // Ví dụ: throw new Exception("Sản phẩm không có trong hóa đơn.");
+            }
+        }
+
+        public async Task DeleteAllProductsFromBill(int billId)
+        {
+            // Tìm tất cả các sản phẩm liên quan đến hóa đơn
+            var productBills = await db.Product_bills
+                                       .Where(pb => pb.BillId == billId)
+                                       .ToListAsync();
+
+            // Nếu có sản phẩm, xóa tất cả
+            if (productBills.Any())
+            {
+                db.Product_bills.RemoveRange(productBills);
+                await db.SaveChangesAsync();
+            }
+            else
+            {
+                // Nếu không có sản phẩm, có thể thông báo hoặc xử lý
+                // Ví dụ: throw new Exception("Không có sản phẩm nào trong hóa đơn này.");
+            }
+        }
 
 
         public async Task EditProduct_bill(Product_bill Product_bill)
