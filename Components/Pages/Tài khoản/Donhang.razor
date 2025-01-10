@@ -43,17 +43,19 @@
 
     <MudPaper Elevation="3" Style="margin:20px; padding:20px">
 
-        <MudGrid Style="margin-bottom: 20px" >
+        <MudGrid Style="margin-bottom: 20px">
             <MudItem md="6" xs="6">
                 <MudItem><strong>Mã hóa đơn: @groupedProducts.Key</strong></MudItem>
                 <MudItem>Ngày mua: @bill.Created_at</MudItem>
             </MudItem>
             <MudSpacer />
-            <MudItem md="6" xs="6" Style="color:#e74c3c; text-align:right"><strong>@bill.Status</strong></MudItem>
+            <MudItem md="6" xs="6" Style="color:#e74c3c; text-align:right" @onclick="() => OnStatusClick(bill.Status, bill.BillId)">
+                <strong>@bill.Status</strong>
+            </MudItem>
+
         </MudGrid>
 
         <table>
-           
             <tbody>
                 @foreach (var context in groupedProducts)
                 {
@@ -68,18 +70,21 @@
                 }
             </tbody>
         </table>
+
         <MudGrid>
             <MudItem md="12" xs="12" Style="text-align:right">Ngày giao: @bill.Updated_at</MudItem>
-        
             <MudItem md="6" xs="6"><strong>Tổng tiền:</strong></MudItem>
             <MudItem md="6" xs="6" Style="color:#e74c3c; text-align:right"><strong>@bill.TotalPrice</strong></MudItem>
         </MudGrid>
     </MudPaper>
 }
 
+
 @code {
     private int userId;
     private List<ProductBillDetailDto> products = new List<ProductBillDetailDto>();
+    private int rating = 0;
+    private string reviewText = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -100,4 +105,34 @@
         // Lấy danh sách sản phẩm theo BillId
         products = await BillService.GetProductsByBill();
     }
+
+    private async Task OnStatusClick(string status, int billId)
+    { 
+        if (status == "Completed")
+        {
+            var hasReviewed = await BillService.HasUserReviewed(userId, billId);
+
+            if (hasReviewed)
+            {
+                // Nếu đã đánh giá, có thể hiển thị thông báo hoặc không làm gì cả
+                Console.WriteLine("Bạn đã đánh giá đơn hàng này.");
+            }
+            else
+            {
+                // Nếu chưa đánh giá, hiển thị hộp thoại đánh giá
+                var parameters = new DialogParameters
+                    {
+                        ["Rating"] = rating,
+                        ["ReviewText"] = reviewText
+                    };
+
+                var dialog = DialogService.Show<RatingDialog>("Đánh giá đơn hàng", parameters);
+                var result = await dialog.Result;
+
+               
+            }
+            
+        }
+    }
+
 }
