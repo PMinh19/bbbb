@@ -33,6 +33,6 @@ namespace BanSach.Components.IService
         Task<TopProductViewModel> GetTotalQuantityP(int productId);
 
         //    Task<(decimal doanhThu, int doanhSo, int soDon)> GetDoanhThuTheoTrangThai(DateTime currentDate, string? orderStatus = null);
-        Task<bool> HasUserReviewed(int userId, int billId);
+       
     }
 }

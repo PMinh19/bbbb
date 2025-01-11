@@ -9,6 +9,8 @@
 @using System.Security.Claims
 @using BanSach.Components.Model.ViewModel
 @using MudBlazor
+@using BanSach.Components.Services.ReviewService
+@inject ReviewService ReviewService
 
 <style>
     .clickable-cell {
@@ -16,9 +18,9 @@
         transition: background-color 0.3s ease;
     }
 
-        .clickable-cell:hover {
-            color: #f0f0f0;
-        }
+    .clickable-cell:hover {
+        color: #f0f0f0;
+    }
 
     .mud-large {
         width: 100%;
@@ -38,7 +40,6 @@
 <!-- Hiển thị danh sách hóa đơn -->
 @foreach (var groupedProducts in products.Where(p => p.Bills.UserID == userId).GroupBy(p => p.Bills.BillId))
 {
-    // Lấy Bill từ phần tử đầu tiên trong nhóm
     var bill = groupedProducts.First().Bills;
 
     <MudPaper Elevation="3" Style="margin:20px; padding:20px">
@@ -49,11 +50,9 @@
                 <MudItem>Ngày mua: @bill.Created_at</MudItem>
             </MudItem>
             <MudSpacer />
-            <MudItem md="6" xs="6" Style="color:#e74c3c; text-align:right" @onclick="() => OnStatusClick(bill.Status, bill.BillId)">
-                <strong>@bill.Status</strong>
-            </MudItem>
-
-        </MudGrid>
+            <MudItem md="6" xs="6" Style="color:#e74c3c; text-align:right">
+                <strong>@bill.Status</strong></MudItem>
+            </MudGrid>
 
         <table>
             <tbody>
@@ -66,6 +65,14 @@
                         <td>@context.Product.ProductName</td>
                         <td>@context.Quantity</td>
                         <td>@context.Price.ToString("C0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))</td>
+                        <td>
+                            @if (@bill.Status == "Completed")
+                            {
+                                <MudButton Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small" @onclick="() => OpenReviewDialog(bill.Status, context.Product.ProductId)">
+                                    Đánh giá
+                                </MudButton>
+                            }
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -78,7 +85,6 @@
         </MudGrid>
     </MudPaper>
 }
-
 
 @code {
     private int userId;
@@ -102,37 +108,33 @@
             userId = 0;
         }
 
-        // Lấy danh sách sản phẩm theo BillId
         products = await BillService.GetProductsByBill();
     }
 
-    private async Task OnStatusClick(string status, int billId)
-    { 
+    private async Task OpenReviewDialog(string status, int productId)
+    {
         if (status == "Completed")
         {
-            var hasReviewed = await BillService.HasUserReviewed(userId, billId);
-
+            // Kiểm tra xem người dùng đã đánh giá sản phẩm này chưa
+            bool hasReviewed = await ReviewService.HasReviewedOrderAsync(userId, productId);
             if (hasReviewed)
             {
-                // Nếu đã đánh giá, có thể hiển thị thông báo hoặc không làm gì cả
-                Console.WriteLine("Bạn đã đánh giá đơn hàng này.");
+                await DialogService.ShowMessageBox("Thông báo", "Bạn đã đánh giá sản phẩm này rồi.");
+                return;
             }
-            else
+
+            // Hiển thị dialog nếu chưa đánh giá
+            var parameters = new DialogParameters
             {
-                // Nếu chưa đánh giá, hiển thị hộp thoại đánh giá
-                var parameters = new DialogParameters
-                    {
-                        ["Rating"] = rating,
-                        ["ReviewText"] = reviewText
-                    };
+                ["Rating"] = rating,
+                ["ReviewText"] = reviewText,
+                ["ProductId"] = productId
+            };
 
-                var dialog = DialogService.Show<RatingDialog>("Đánh giá đơn hàng", parameters);
-                var result = await dialog.Result;
+            var dialog = DialogService.Show<RatingDialog>("Đánh giá sản phẩm", parameters);
+            var result = await dialog.Result;
 
-               
-            }
             
         }
     }
-
 }

@@ -479,20 +479,6 @@ namespace BanSach.Components.Services
 
             return product;
         }
-        public async Task<bool> HasUserReviewed(int userId, int billId)
-        {
-            var bill = await db.Bill
-                .FirstOrDefaultAsync(b => b.BillId == billId && b.UserID == userId && b.Status == "Completed");
-
-            if (bill == null)
-            {
-                return false; // Đơn hàng không tồn tại hoặc không có trạng thái "Completed"
-            }
-
-            var review = await db.Reviews
-                .FirstOrDefaultAsync(r => r.UserId == userId && r.BillId == billId);
-
-            return review != null; // Trả về true nếu đã có đánh giá, ngược lại false
-        }
+       
     }
 }
