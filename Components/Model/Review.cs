@@ -4,7 +4,8 @@ public class Review
 {
     public int ReviewId { get; set; }
     public int UserId { get; set; }
-
+    public int ProductBillId { get; set; } 
+    public Product_bill ProductBill { get; set; }
     public int ProductId { get; set; }
     public int Rating { get; set; }
     public string ReviewText { get; set; }

@@ -49,7 +49,7 @@
                                     <div style="margin-top:10px">Lượt mua:@productViewModel.TotalQuantity</div>
                                 </MudItem>
                             </MudGrid>
-                           
+
 
                         </MudGrid>
                         @{
@@ -108,7 +108,7 @@
                     <div>@product.Description</div>
                 </MudItem>
             </MudGrid>
-           
+
 
         }
 
@@ -178,6 +178,7 @@
     public List<Product> products = new List<Product>();
     [Parameter]
     public int productId { get; set; }
+    // public int productBillId{ get; set; }
     private List<string> uploadedImages = new List<string>();
     private List<IBrowserFile> selectedFiles = new List<IBrowserFile>();
     private bool isInitialized = false;
@@ -274,6 +275,7 @@
 
             isInitialized = true;
         }
+
         reviews = await ReviewService.GetReviewsForProductAsync(productId);
         if (reviews.Any())
         {

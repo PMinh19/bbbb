@@ -22,12 +22,12 @@ namespace BanSach.Components.Services.ReviewService
             _context.Reviews.Add(review);
             await _context.SaveChangesAsync();
         }
-        public async Task<bool> HasReviewedOrderAsync(int userId,int productId)
+        public async Task<bool> HasReviewedOrderAsync(int userId,int productBillId)
         {
             return await _context.Reviews
-                .AnyAsync(r => r.UserId == userId && r.ProductId == productId);
+                .AnyAsync(r => r.UserId == userId && r.ProductBillId == productBillId);
         }
-        public async Task<List<Review>> GetReviewsForProductAsync(int productId)
+        public async Task<List<Review>> GetReviewsForProductAsync( int productId)
         {
             var reviews = await _context.Reviews
                 .Where(r => r.ProductId == productId)

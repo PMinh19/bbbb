@@ -23,8 +23,8 @@
     [Parameter] public int Rating { get; set; }
     [Parameter] public string ReviewText { get; set; }
     private int userId;
-    [Parameter] public int ProductID { get; set; }
- 
+    [Parameter] public int ProductId { get; set; }
+    [Parameter] public int ProductBillId { get; set; }
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -54,9 +54,9 @@
                     ReviewText = ReviewText,
                     CreatedAt = DateTime.Now,
                     UserId = userId,
-                 
-                    ProductId = ProductID,
-
+                    ProductId=ProductId,
+                    
+                    ProductBillId=ProductBillId
                 };
 
             await ReviewService.SaveReview(newReview);

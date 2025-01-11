@@ -68,7 +68,7 @@
                         <td>
                             @if (@bill.Status == "Completed")
                             {
-                                <MudButton Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small" @onclick="() => OpenReviewDialog(bill.Status, context.Product.ProductId)">
+                                <MudButton Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small" @onclick="() => OpenReviewDialog(bill.Status,context.ProductBillId,context.Product.ProductId)">
                                     Đánh giá
                                 </MudButton>
                             }
@@ -111,12 +111,12 @@
         products = await BillService.GetProductsByBill();
     }
 
-    private async Task OpenReviewDialog(string status, int productId)
+    private async Task OpenReviewDialog(string status, int productBillId, int productId)
     {
         if (status == "Completed")
         {
             // Kiểm tra xem người dùng đã đánh giá sản phẩm này chưa
-            bool hasReviewed = await ReviewService.HasReviewedOrderAsync(userId, productId);
+            bool hasReviewed = await ReviewService.HasReviewedOrderAsync(userId, productBillId);
             if (hasReviewed)
             {
                 await DialogService.ShowMessageBox("Thông báo", "Bạn đã đánh giá sản phẩm này rồi.");
@@ -128,7 +128,8 @@
             {
                 ["Rating"] = rating,
                 ["ReviewText"] = reviewText,
-                ["ProductId"] = productId
+                ["ProductBillId"] = productBillId,
+                ["ProductId"]=productId
             };
 
             var dialog = DialogService.Show<RatingDialog>("Đánh giá sản phẩm", parameters);
